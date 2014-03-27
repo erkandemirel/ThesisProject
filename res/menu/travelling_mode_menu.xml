@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/action_bar_clear_locations"
+        android:showAsAction="never"
+        android:title="@string/clear_markers"/>
+    <item
+        android:id="@+id/action_bar_toggle_style"
+        android:showAsAction="never"
+        android:title="@string/toggle_style"/>
+    <item
+        android:id="@+id/travelling_menu_item"
+        android:icon="@drawable/ic_action_storage"
+        android:showAsAction="ifRoom">
+        <menu>
+            <item
+                android:id="@+id/driving"
+                android:showAsAction="ifRoom"
+                android:title="@string/driving"/>
+            <item
+                android:id="@+id/walking"
+                android:showAsAction="ifRoom"
+                android:title="@string/walking"/>
+            <item
+                android:id="@+id/bicycling"
+                android:showAsAction="ifRoom"
+                android:title="@string/bicycling"/>
+        </menu>
+    </item>
+
+</menu>

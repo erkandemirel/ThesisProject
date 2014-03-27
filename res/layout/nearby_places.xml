@@ -1,0 +1,19 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+    <Spinner
+        android:id="@+id/spr_place_type"
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true" />
+
+    <Button
+        android:id="@+id/find_button_nearby_places"
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@+id/spr_place_type"
+        android:text="@string/str_btn_find" />
+
+</RelativeLayout>

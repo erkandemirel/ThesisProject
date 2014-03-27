@@ -1,0 +1,14 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+    <autocompletetext.PlacesAutoCompleteTextView
+        android:id="@+id/actv_places"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:hint="@string/str_actv_places"
+        android:singleLine="true"
+        android:textColor="#000000" />
+
+</RelativeLayout>
