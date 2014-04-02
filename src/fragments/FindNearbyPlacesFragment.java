@@ -7,8 +7,7 @@ import java.util.Random;
 
 import places.Place;
 import places.PlaceDialogFragment;
-import places.PlacesParserTask;
-
+import places.PlacesDownloadTask;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
@@ -24,13 +23,16 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import android.os.Bundle;
 import android.os.Handler;
+
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.View.OnClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.Spinner;
+import android.view.WindowManager;
+import android.widget.Toast;
 
 public class FindNearbyPlacesFragment extends SherlockMapFragment {
 
@@ -39,10 +41,6 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 	private List<Marker> markers = new ArrayList<Marker>();
 
 	private static final float UNDEFINED_COLOR = -1;
-
-	Spinner spinnerPlaces;
-
-	public static Button buttonFind;
 
 	Place[] nearPlaces;
 
@@ -88,7 +86,26 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 			clearMarkers();
 		} else if (item.getItemId() == R.id.action_bar_toggle_style) {
 			toggleStyle();
+		} else if (item.getItemId() == R.id.airport) {
+			getNearbyPlaces("airport");
+		} else if (item.getItemId() == R.id.restaurant) {
+			getNearbyPlaces("restaurant");
+		} else if (item.getItemId() == R.id.mosque) {
+			getNearbyPlaces("mosque");
+		} else if (item.getItemId() == R.id.movie_theater) {
+			getNearbyPlaces("movie_theater");
+		} else if (item.getItemId() == R.id.hospital) {
+			getNearbyPlaces("hospital");
+		} else if (item.getItemId() == R.id.bank) {
+			getNearbyPlaces("bank");
+		} else if (item.getItemId() == R.id.atm) {
+			getNearbyPlaces("atm");
+		} else if (item.getItemId() == R.id.cinema) {
+			getNearbyPlaces("cinema");
+		} else if (item.getItemId() == R.id.bus_station) {
+			getNearbyPlaces("bus_station");
 		}
+
 		return super.onOptionsItemSelected(item);
 	}
 
@@ -102,62 +119,7 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 
 		googleMap = getMap();
 
-		View view = inflater.inflate(R.layout.nearby_places, container, false);
-
-		buttonFind = (Button) view.findViewById(R.id.find_button_nearby_places);
-
-		nearPlacesType = getResources().getStringArray(R.array.place_type);
-
-		nearPlacesName = getResources().getStringArray(R.array.place_type_name);
-
 		nearPlacesReference = new HashMap<String, Place>();
-
-		ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
-				getActivity().getBaseContext(),
-				android.R.layout.simple_spinner_dropdown_item, nearPlacesName);
-
-		spinnerPlaces = (Spinner) view.findViewById(R.id.spr_place_type);
-
-		spinnerPlaces.setAdapter(arrayAdapter);
-
-		if (savedInstanceState != null) {
-
-			// nearPlacesReference.clear();
-
-			if (savedInstanceState.containsKey("places")) {
-
-				nearPlaces = (Place[]) savedInstanceState
-						.getParcelableArray("places");
-
-				// Traversing through each near by place object
-				for (int i = 0; i < nearPlaces.length; i++) {
-
-					// Getting latitude and longitude of the i-th place
-					LatLng point = new LatLng(
-							Double.parseDouble(nearPlaces[i].placeLatitude),
-							Double.parseDouble(nearPlaces[i].placeLongitude));
-
-					// Drawing the marker corresponding to the i-th place
-					Marker m = PlacesParserTask.drawMarker(point,
-							UNDEFINED_COLOR);
-
-					// Linkng i-th place and its marker id
-					nearPlacesReference.put(m.getId(), nearPlaces[i]);
-				}
-			}
-
-			// If a touched location is already saved
-			if (savedInstanceState.containsKey("location")) {
-
-				// Retrieving the touched location and setting in member
-				// variable
-				latLng = (LatLng) savedInstanceState.getParcelable("location");
-
-				// Drawing a marker at the touched location
-				PlacesParserTask.drawMarker(latLng,
-						BitmapDescriptorFactory.HUE_GREEN);
-			}
-		}
 
 		// Map Click listener
 		googleMap.setOnMapClickListener(new OnMapClickListener() {
@@ -165,10 +127,6 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 			@Override
 			public void onMapClick(LatLng point) {
 
-				// Clears all the existing markers
-				googleMap.clear();
-
-				// Setting the touched location in member variable
 				latLng = point;
 
 				// Drawing a marker at the touched location
@@ -186,71 +144,35 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 				if (!nearPlacesReference.containsKey(marker.getId()))
 					return false;
 
-				// Getting place object corresponding to the currently clicked
-				// Marker
 				Place place = nearPlacesReference.get(marker.getId());
+
+				DisplayMetrics dm = new DisplayMetrics();
+
+				WindowManager windowManager = (WindowManager) TabActivity.mainContext
+						.getSystemService(TabActivity.WINDOW_SERVICE);
+
+				Display display = windowManager.getDefaultDisplay();
+
+				display.getMetrics(dm);
 
 				// Creating a dialog fragment to display the photo
 				PlaceDialogFragment dialogFragment = new PlaceDialogFragment(
-						place, TabActivity.displayMetrics);
+						place, dm);
 
-				// Adding the dialog fragment to the transaction
-				TabActivity.fragmentTransaction.add(dialogFragment, "TAG");
+				FragmentManager fm = getFragmentManager();
 
-				// Committing the fragment transaction
-				TabActivity.fragmentTransaction.commit();
+				FragmentTransaction fragmentTransaction = fm.beginTransaction();
+
+				fragmentTransaction.add(dialogFragment, "TAG");
+
+				fragmentTransaction.commit();
 
 				return false;
 			}
 		});
 
-		buttonFind.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-
-				int selectedPosition = spinnerPlaces.getSelectedItemPosition();
-				String type = nearPlacesType[selectedPosition];
-
-				googleMap.clear();
-
-				PlacesParserTask.drawMarker(latLng,
-						BitmapDescriptorFactory.HUE_GREEN);
-
-				StringBuilder sb = new StringBuilder(
-						"https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
-				sb.append("location=" + latLng.latitude + ","
-						+ latLng.longitude);
-				sb.append("&radius=500000");
-				sb.append("&types=" + type);
-				sb.append("&sensor=true");
-				sb.append("&key=AIzaSyC-CiTPvezMf-xewmsVJZp8P8PcnWkSJow");
-
-				// Creating a new non-ui thread task to download Google place //
-				// jsondata
-				PlacesParserTask placesTask = new PlacesParserTask();
-
-				// Invokes the "doInBackground()" method of the class PlaceTask
-				placesTask.execute(sb.toString());
-			}
-		});
-
 		return super.onCreateView(inflater, container, savedInstanceState);
 
-	}
-
-	@Override
-	public void onSaveInstanceState(Bundle outState) {
-
-		// Saving all the near by places objects
-		if (nearPlaces != null)
-			outState.putParcelableArray("places", nearPlaces);
-
-		// Saving the touched location
-		if (latLng != null)
-			outState.putParcelable("location", latLng);
-
-		super.onSaveInstanceState(outState);
 	}
 
 	public void toggleStyle() {
@@ -281,4 +203,34 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 
 		return m;
 	}
+
+	private void getNearbyPlaces(String type) {
+
+		googleMap.clear();
+
+		if (latLng == null) {
+			Toast.makeText(getSherlockActivity(), "No points on the map!",
+					Toast.LENGTH_LONG).show();
+		} else {
+			// PlacesParserTask.drawMarker(latLng,
+			// BitmapDescriptorFactory.HUE_GREEN);
+
+			StringBuilder sb = new StringBuilder(
+					"https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
+			sb.append("location=" + latLng.latitude + "," + latLng.longitude);
+			sb.append("&radius=500000");
+			sb.append("&types=" + type);
+			sb.append("&sensor=true");
+			sb.append("&key=AIzaSyC-CiTPvezMf-xewmsVJZp8P8PcnWkSJow");
+
+			// Creating a new non-ui thread task to download Google place //
+			// jsondata
+			PlacesDownloadTask placesDownloadTask = new PlacesDownloadTask();
+
+			// Invokes the "doInBackground()" method of the class PlaceTask
+			placesDownloadTask.execute(sb.toString());
+
+		}
+	}
+
 }

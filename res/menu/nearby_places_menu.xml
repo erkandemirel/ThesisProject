@@ -9,5 +9,50 @@
         android:id="@+id/action_bar_toggle_style"
         android:showAsAction="ifRoom"
         android:title="@string/toggle_style"/>
+    <item
+        android:id="@+id/nearby_places_item"
+        android:showAsAction="ifRoom"
+        android:title="@string/nearby_places"
+        android:icon="@drawable/places">
+        <menu>
+             <item
+                android:id="@+id/restaurant"
+                android:showAsAction="ifRoom"
+                android:title="@string/restaurant"/>
+            <item
+                android:id="@+id/airport"
+                android:showAsAction="ifRoom"
+                android:title="@string/airport"/>
+            <item
+                android:id="@+id/atm"
+                android:showAsAction="ifRoom"
+                android:title="@string/atm"/>
+            <item
+                android:id="@+id/bank"
+                android:showAsAction="ifRoom"
+                android:title="@string/bank"/>
+            <item
+                android:id="@+id/hospital"
+                android:showAsAction="ifRoom"
+                android:title="@string/hospital"/>
+            <item
+                android:id="@+id/mosque"
+                android:showAsAction="ifRoom"
+                android:title="@string/mosque"/>
+           
+            <item
+                android:id="@+id/movie_theater"
+                android:showAsAction="ifRoom"
+                android:title="@string/movie_theater"/>
+            <item
+                android:id="@+id/cinema"
+                android:showAsAction="ifRoom"
+                android:title="@string/cinema"/>
+             <item
+                android:id="@+id/bus_station"
+                android:showAsAction="ifRoom"
+                android:title="@string/bus_station"/>
+        </menu>
+    </item>
 
 </menu>

@@ -1,12 +1,12 @@
 package com.example.navigation;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -27,12 +27,9 @@ public class TabActivity extends SherlockFragmentActivity {
 
 	public static DisplayMetrics displayMetrics;
 
-	public static FragmentManager fragmentManager;
-
-	public static FragmentTransaction fragmentTransaction;
-
 	public static Context mainContext;
 
+	@SuppressLint("Recycle")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 
@@ -55,12 +52,6 @@ public class TabActivity extends SherlockFragmentActivity {
 
 		// Getting the screen display metrics
 		getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-
-		// Getting a reference to Fragment Manager
-		fragmentManager = getSupportFragmentManager();
-
-		// Starting Fragment Transaction
-		fragmentTransaction = fragmentManager.beginTransaction();
 
 		final int pageMargin = (int) TypedValue.applyDimension(
 				TypedValue.COMPLEX_UNIT_DIP, 8, getResources()

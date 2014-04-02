@@ -9,5 +9,12 @@
         android:id="@+id/action_bar_toggle_style"
         android:showAsAction="ifRoom"
         android:title="@string/toggle_style"/>
+    <item
+        android:id="@+id/autocomplete_menu_item"
+        android:showAsAction="ifRoom"
+        android:title="@string/autocomplete_menu_item">
+        <menu>
+        </menu>
+    </item>
 
 </menu>

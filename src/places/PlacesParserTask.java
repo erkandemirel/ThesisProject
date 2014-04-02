@@ -20,18 +20,21 @@ public class PlacesParserTask extends AsyncTask<String, Integer, Place[]> {
 	private static final float UNDEFINED_COLOR = -1;
 
 	HashMap<String, Place> nearPlacesReference = new HashMap<String, Place>();
-	Place[] nearPlaces = null;
 
 	JSONObject jObject;
 
+	PlaceJSONParser placeJsonParser;
+
 	@Override
 	protected Place[] doInBackground(String... params) {
+
 		Place[] places = null;
-		PlaceJSONParser placeJsonParser = new PlaceJSONParser();
+
+		placeJsonParser = new PlaceJSONParser();
 
 		try {
 			jObject = new JSONObject(params[0]);
-			// Getting the parsed data as a List construct
+
 			places = placeJsonParser.parse(jObject);
 
 		} catch (Exception e) {
@@ -42,7 +45,6 @@ public class PlacesParserTask extends AsyncTask<String, Integer, Place[]> {
 
 	@Override
 	protected void onPostExecute(Place[] result) {
-		nearPlaces = result;
 
 		for (int i = 0; i < result.length; i++) {
 			Place place = result[i];
@@ -67,6 +69,7 @@ public class PlacesParserTask extends AsyncTask<String, Integer, Place[]> {
 	// Drawing marker at latLng with color
 
 	public static Marker drawMarker(LatLng latLng, float color) {
+
 		// Creating a marker
 		MarkerOptions markerOptions = new MarkerOptions();
 

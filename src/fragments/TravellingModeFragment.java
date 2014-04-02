@@ -22,9 +22,6 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.RadioGroup.OnCheckedChangeListener;
 
 public class TravellingModeFragment extends SherlockMapFragment {
 
@@ -32,12 +29,9 @@ public class TravellingModeFragment extends SherlockMapFragment {
 
 	private List<Marker> markers = new ArrayList<Marker>();
 
-	public static RadioButton rbDriving;
-	public static RadioButton rbBiCycling;
-	public static RadioButton rbWalking;
-	RadioGroup rgModes;
-
 	public static ArrayList<LatLng> markerPoints;
+
+	public static int travelling_mode;
 
 	Handler handler = new Handler();
 	Random random = new Random();
@@ -71,15 +65,51 @@ public class TravellingModeFragment extends SherlockMapFragment {
 			clearMarkers();
 		} else if (item.getItemId() == R.id.action_bar_toggle_style) {
 			toggleStyle();
-		} else if (item.getItemId() == R.id.walking) {
+		} else if (item.getItemId() == R.id.driving) {
+
+			travelling_mode = 1;
 
 			if (markerPoints.size() >= 2) {
 				LatLng origin = markerPoints.get(0);
 				LatLng dest = markerPoints.get(1);
 
 				// Getting URL to the Google Directions API
-				String url = DirectionsParserTask
-						.getDirectionsUrl(origin, dest);
+				String url = DirectionsParserTask.getDirectionsUrl(origin,
+						dest, travelling_mode);
+
+				DirectionsDownloadTask directionsdownloadTask = new DirectionsDownloadTask();
+
+				// Start downloading json data from Google Directions API
+				directionsdownloadTask.execute(url);
+			}
+		} else if (item.getItemId() == R.id.bicycling) {
+
+			travelling_mode = 2;
+
+			if (markerPoints.size() >= 2) {
+				LatLng origin = markerPoints.get(0);
+				LatLng dest = markerPoints.get(1);
+
+				// Getting URL to the Google Directions API
+				String url = DirectionsParserTask.getDirectionsUrl(origin,
+						dest, travelling_mode);
+
+				DirectionsDownloadTask directionsdownloadTask = new DirectionsDownloadTask();
+
+				// Start downloading json data from Google Directions API
+				directionsdownloadTask.execute(url);
+			}
+		} else if (item.getItemId() == R.id.walking) {
+
+			travelling_mode = 3;
+
+			if (markerPoints.size() >= 2) {
+				LatLng origin = markerPoints.get(0);
+				LatLng dest = markerPoints.get(1);
+
+				// Getting URL to the Google Directions API
+				String url = DirectionsParserTask.getDirectionsUrl(origin,
+						dest, travelling_mode);
 
 				DirectionsDownloadTask directionsdownloadTask = new DirectionsDownloadTask();
 
@@ -100,40 +130,7 @@ public class TravellingModeFragment extends SherlockMapFragment {
 
 		googleMap = getMap();
 
-		View view = inflater
-				.inflate(R.layout.travelling_mode, container, false);
-
-		rgModes = (RadioGroup) view.findViewById(R.id.rg_modes);
-
-		rbDriving = (RadioButton) view.findViewById(R.id.rb_driving);
-
-		rbBiCycling = (RadioButton) view.findViewById(R.id.rb_bicycling);
-
-		rbWalking = (RadioButton) view.findViewById(R.id.rb_walking);
-
 		markerPoints = new ArrayList<LatLng>();
-
-		rgModes.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-
-			@Override
-			public void onCheckedChanged(RadioGroup group, int checkedId) {
-				// Checks, whether start and end locations are captured
-				if (markerPoints.size() >= 2) {
-					LatLng origin = markerPoints.get(0);
-					LatLng dest = markerPoints.get(1);
-
-					// Getting URL to the Google Directions API
-					String url = DirectionsParserTask.getDirectionsUrl(origin,
-							dest);
-
-					DirectionsDownloadTask directionsdownloadTask = new DirectionsDownloadTask();
-
-					// Start downloading json data from Google Directions API
-					directionsdownloadTask.execute(url);
-				}
-
-			}
-		});
 
 		// Setting a click event handler for the map
 		googleMap.setOnMapClickListener(new OnMapClickListener() {
@@ -152,20 +149,6 @@ public class TravellingModeFragment extends SherlockMapFragment {
 
 				// Draws Start and Stop markers on the Google Map
 				DirectionsMarkers.drawStartStopMarkers();
-
-				// Checks, whether start and end locations are captured
-				if (markerPoints.size() >= 2) {
-					LatLng origin = markerPoints.get(0);
-					LatLng dest = markerPoints.get(1);
-					// Getting URL to the Google Directions API
-					String url = DirectionsParserTask.getDirectionsUrl(origin,
-							dest);
-
-					DirectionsDownloadTask directionsDownloadTask = new DirectionsDownloadTask();
-
-					// Start downloading json data from Google Directions API
-					directionsDownloadTask.execute(url);
-				}
 
 			}
 		});

@@ -19,10 +19,7 @@ import android.widget.Toast;
 public class DirectionsParserTask extends
 		AsyncTask<String, Integer, List<List<HashMap<String, String>>>> {
 
-	static int mMode = 0;
-	final int MODE_DRIVING = 0;
-	final int MODE_BICYCLING = 1;
-	final int MODE_WALKING = 2;
+	static String mode = "mode=driving";
 
 	@Override
 	protected List<List<HashMap<String, String>>> doInBackground(
@@ -44,22 +41,22 @@ public class DirectionsParserTask extends
 
 	@Override
 	protected void onPostExecute(List<List<HashMap<String, String>>> result) {
-		ArrayList<LatLng> points = null;
-		PolylineOptions lineOptions = null;
-		// MarkerOptions markerOptions = new MarkerOptions();
 
+		ArrayList<LatLng> points = new ArrayList<LatLng>();
+		PolylineOptions lineOptions = new PolylineOptions();
+		HashMap<String, String> point = new HashMap<String, String>();
 		try {
+			
+			if(result != null){
 			// Traversing through all the routes
 			for (int i = 0; i < result.size(); i++) {
-				points = new ArrayList<LatLng>();
-				lineOptions = new PolylineOptions();
 
 				// Fetching i-th route
 				List<HashMap<String, String>> path = result.get(i);
 
 				// Fetching all the points in i-th route
 				for (int j = 0; j < path.size(); j++) {
-					HashMap<String, String> point = path.get(j);
+					point = path.get(j);
 
 					double lat = Double.parseDouble(point.get("lat"));
 					double lng = Double.parseDouble(point.get("lng"));
@@ -73,15 +70,23 @@ public class DirectionsParserTask extends
 				lineOptions.width(2);
 
 				// Changing the color polyline according to the mode
-				if (mMode == MODE_DRIVING)
+				if (TravellingModeFragment.travelling_mode == 1)
 					lineOptions.color(Color.RED);
-				else if (mMode == MODE_BICYCLING)
+				else if (TravellingModeFragment.travelling_mode == 2)
 					lineOptions.color(Color.GREEN);
-				else if (mMode == MODE_WALKING)
+				else if (TravellingModeFragment.travelling_mode == 3)
 					lineOptions.color(Color.BLUE);
 
 				// Drawing polyline in the Google Map for the i-th route
 				TravellingModeFragment.googleMap.addPolyline(lineOptions);
+
+			}
+			
+			}
+			
+			else{
+				Toast.makeText(TabActivity.mainContext, "No points on the map!",
+						Toast.LENGTH_LONG).show();
 			}
 		} catch (Exception e) {
 
@@ -94,7 +99,8 @@ public class DirectionsParserTask extends
 
 	}
 
-	public static String getDirectionsUrl(LatLng origin, LatLng dest) {
+	public static String getDirectionsUrl(LatLng origin, LatLng dest,
+			int travelling_mode) {
 
 		// Origin of route
 		String str_origin = "origin=" + origin.latitude + ","
@@ -106,18 +112,15 @@ public class DirectionsParserTask extends
 		// Sensor enabled
 		String sensor = "sensor=false";
 
-		// Travelling Mode
-		String mode = "mode=driving";
-
-		if (TravellingModeFragment.rbDriving.isChecked()) {
+		if (travelling_mode == 1) {
 			mode = "mode=driving";
-			mMode = 0;
-		} else if (TravellingModeFragment.rbBiCycling.isChecked()) {
+
+		} else if (travelling_mode == 2) {
 			mode = "mode=bicycling";
-			mMode = 1;
-		} else if (TravellingModeFragment.rbWalking.isChecked()) {
+
+		} else if (travelling_mode == 3) {
 			mode = "mode=walking";
-			mMode = 2;
+
 		}
 
 		// Building the parameters to the web service
