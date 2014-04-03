@@ -552,6 +552,7 @@ int string str_rb_driving 0x7f060031
 int string str_rb_walking 0x7f060033
 int string terrain_mode 0x7f06002c
 int string toggle_style 0x7f060034
+int string tooltip 0x7f060048
 int string travelling_mode 0x7f06003b
 int string walking 0x7f06003a
 int style AppBaseTheme 0x7f08005c

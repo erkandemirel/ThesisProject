@@ -34,6 +34,7 @@
     <string name="animation_menu_settings">Settings</string>
      <string name="autocomplete_menu_item">Auto Complete Menu</string>
      <string name="nearby_places">Nearby Places</string>
+      <string name="tooltip">This is the tooltip</string>
     
     
 

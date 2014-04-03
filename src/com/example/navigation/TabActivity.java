@@ -14,7 +14,6 @@ import android.view.Window;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.astuetz.PagerSlidingTabStrip;
-import fragments.AnimatingFragment;
 import fragments.TravellingModeFragment;
 import fragments.FindNearbyPlacesFragment;
 import fragments.FindPlacesByAutoCompleteTextViewFragment;
@@ -64,7 +63,7 @@ public class TabActivity extends SherlockFragmentActivity {
 	public class TabPagerAdapter extends FragmentPagerAdapter {
 
 		private final String[] TITLES = { "Find Places", "Find Nearby Places",
-				"Animation", "Travelling Mode" };
+				"Travelling Mode" };
 
 		public TabPagerAdapter(FragmentManager fm) {
 			super(fm);
@@ -85,11 +84,6 @@ public class TabActivity extends SherlockFragmentActivity {
 		public Fragment getItem(int position) {
 
 			if (position == 0) {
-				Fragment fragmentByTag = getSupportFragmentManager()
-						.findFragmentByTag(
-								makeFragmentName(R.id.pager, position));
-				System.out.println("*********** fragmentByTag = "
-						+ fragmentByTag);
 
 				return FindPlacesByAutoCompleteTextViewFragment.newInstance(
 						position, "Find Places");
@@ -97,11 +91,6 @@ public class TabActivity extends SherlockFragmentActivity {
 			}
 
 			else if (position == 1) {
-				Fragment fragmentByTag = getSupportFragmentManager()
-						.findFragmentByTag(
-								makeFragmentName(R.id.pager, position));
-				System.out.println("*********** fragmentByTag = "
-						+ fragmentByTag);
 
 				return FindNearbyPlacesFragment.newInstance(position,
 						"Find Nearby Places");
@@ -109,33 +98,14 @@ public class TabActivity extends SherlockFragmentActivity {
 			}
 
 			else if (position == 2) {
-				Fragment fragmentByTag = getSupportFragmentManager()
-						.findFragmentByTag(
-								makeFragmentName(R.id.pager, position));
-				System.out.println("*********** fragmentByTag = "
-						+ fragmentByTag);
-
-				return AnimatingFragment.newInstance(position,
-						"Animating Markers");
-
-			}
-
-			else {
-				Fragment fragmentByTag = getSupportFragmentManager()
-						.findFragmentByTag(
-								makeFragmentName(R.id.pager, position));
-				System.out.println("*********** fragmentByTag = "
-						+ fragmentByTag);
 
 				return TravellingModeFragment.newInstance(position,
-						"Driving Mode");
+						"Travelling Mode");
 			}
+			return null;
+
 		}
 
-	}
-
-	private static String makeFragmentName(int viewId, int index) {
-		return "android:switcher:" + viewId + ":" + index;
 	}
 
 }
