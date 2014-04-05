@@ -20,6 +20,8 @@ public class DirectionsParserTask extends
 		AsyncTask<String, Integer, List<List<HashMap<String, String>>>> {
 
 	static String mode = "mode=driving";
+	String distance = "";
+	String duration = "";
 
 	@Override
 	protected List<List<HashMap<String, String>>> doInBackground(
@@ -45,48 +47,56 @@ public class DirectionsParserTask extends
 		ArrayList<LatLng> points = new ArrayList<LatLng>();
 		PolylineOptions lineOptions = new PolylineOptions();
 		HashMap<String, String> point = new HashMap<String, String>();
+
 		try {
-			
-			if(result != null){
-			// Traversing through all the routes
-			for (int i = 0; i < result.size(); i++) {
 
-				// Fetching i-th route
-				List<HashMap<String, String>> path = result.get(i);
+			if (result != null) {
+				// Traversing through all the routes
+				for (int i = 0; i < result.size(); i++) {
 
-				// Fetching all the points in i-th route
-				for (int j = 0; j < path.size(); j++) {
-					point = path.get(j);
+					// Fetching i-th route
+					List<HashMap<String, String>> path = result.get(i);
 
-					double lat = Double.parseDouble(point.get("lat"));
-					double lng = Double.parseDouble(point.get("lng"));
-					LatLng position = new LatLng(lat, lng);
+					// Fetching all the points in i-th route
+					for (int j = 0; j < path.size(); j++) {
+						point = path.get(j);
 
-					points.add(position);
+						if (j == 0) { // Get distance from the list
+							distance = (String) point.get("distance");
+							continue;
+						} else if (j == 1) { // Get duration from the list
+							duration = (String) point.get("duration");
+							continue;
+						}
+
+						double lat = Double.parseDouble(point.get("lat"));
+						double lng = Double.parseDouble(point.get("lng"));
+						LatLng position = new LatLng(lat, lng);
+
+						points.add(position);
+					}
+
+					// Adding all the points in the route to LineOptions
+					lineOptions.addAll(points);
+					lineOptions.width(2);
+
+					// Changing the color polyline according to the mode
+					if (TravellingModeFragment.travelling_mode == 1)
+						lineOptions.color(Color.RED);
+					else if (TravellingModeFragment.travelling_mode == 2)
+						lineOptions.color(Color.GREEN);
+					else if (TravellingModeFragment.travelling_mode == 3)
+						lineOptions.color(Color.BLUE);
+
+					// Drawing polyline in the Google Map for the i-th route
+					TravellingModeFragment.googleMap.addPolyline(lineOptions);
+
 				}
-
-				// Adding all the points in the route to LineOptions
-				lineOptions.addAll(points);
-				lineOptions.width(2);
-
-				// Changing the color polyline according to the mode
-				if (TravellingModeFragment.travelling_mode == 1)
-					lineOptions.color(Color.RED);
-				else if (TravellingModeFragment.travelling_mode == 2)
-					lineOptions.color(Color.GREEN);
-				else if (TravellingModeFragment.travelling_mode == 3)
-					lineOptions.color(Color.BLUE);
-
-				// Drawing polyline in the Google Map for the i-th route
-				TravellingModeFragment.googleMap.addPolyline(lineOptions);
-
 			}
-			
-			}
-			
-			else{
-				Toast.makeText(TabActivity.mainContext, "No points on the map!",
-						Toast.LENGTH_LONG).show();
+
+			else {
+				Toast.makeText(TabActivity.mainContext,
+						"No points on the map!", Toast.LENGTH_LONG).show();
 			}
 		} catch (Exception e) {
 

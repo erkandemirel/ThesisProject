@@ -10,6 +10,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.example.navigation.R;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 
@@ -19,9 +20,14 @@ import directions.DirectionsParserTask;
 
 import android.os.Bundle;
 import android.os.Handler;
+
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 public class TravellingModeFragment extends SherlockMapFragment {
 
@@ -65,57 +71,6 @@ public class TravellingModeFragment extends SherlockMapFragment {
 			clearMarkers();
 		} else if (item.getItemId() == R.id.action_bar_toggle_style) {
 			toggleStyle();
-		} else if (item.getItemId() == R.id.driving) {
-
-			travelling_mode = 1;
-
-			if (markerPoints.size() >= 2) {
-				LatLng origin = markerPoints.get(0);
-				LatLng dest = markerPoints.get(1);
-
-				// Getting URL to the Google Directions API
-				String url = DirectionsParserTask.getDirectionsUrl(origin,
-						dest, travelling_mode);
-
-				DirectionsDownloadTask directionsdownloadTask = new DirectionsDownloadTask();
-
-				// Start downloading json data from Google Directions API
-				directionsdownloadTask.execute(url);
-			}
-		} else if (item.getItemId() == R.id.bicycling) {
-
-			travelling_mode = 2;
-
-			if (markerPoints.size() >= 2) {
-				LatLng origin = markerPoints.get(0);
-				LatLng dest = markerPoints.get(1);
-
-				// Getting URL to the Google Directions API
-				String url = DirectionsParserTask.getDirectionsUrl(origin,
-						dest, travelling_mode);
-
-				DirectionsDownloadTask directionsdownloadTask = new DirectionsDownloadTask();
-
-				// Start downloading json data from Google Directions API
-				directionsdownloadTask.execute(url);
-			}
-		} else if (item.getItemId() == R.id.walking) {
-
-			travelling_mode = 3;
-
-			if (markerPoints.size() >= 2) {
-				LatLng origin = markerPoints.get(0);
-				LatLng dest = markerPoints.get(1);
-
-				// Getting URL to the Google Directions API
-				String url = DirectionsParserTask.getDirectionsUrl(origin,
-						dest, travelling_mode);
-
-				DirectionsDownloadTask directionsdownloadTask = new DirectionsDownloadTask();
-
-				// Start downloading json data from Google Directions API
-				directionsdownloadTask.execute(url);
-			}
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -123,12 +78,31 @@ public class TravellingModeFragment extends SherlockMapFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-
 		super.onCreateView(inflater, container, savedInstanceState);
 
 		handler.postDelayed(runner, random.nextInt(2000));
 
-		googleMap = getMap();
+		View view = inflater
+				.inflate(R.layout.travelling_mode, container, false);
+		FragmentManager fragmentManager = getFragmentManager();
+
+		Button drivingButton = (Button) view.findViewById(R.id.driving);
+		Button walkingButton = (Button) view.findViewById(R.id.walking);
+		Button bicyclingButton = (Button) view.findViewById(R.id.bicycling);
+
+		SupportMapFragment supportMapFragment = (SupportMapFragment) fragmentManager
+				.findFragmentById(R.id.map);
+		googleMap = supportMapFragment.getMap();
+
+		FragmentTransaction fragmentTransaction = fragmentManager
+				.beginTransaction();
+		fragmentTransaction.commit();
+
+		if (googleMap != null) {
+			googleMap.getUiSettings().setCompassEnabled(true);
+			googleMap.setTrafficEnabled(true);
+			googleMap.setMyLocationEnabled(true);
+		}
 
 		markerPoints = new ArrayList<LatLng>();
 
@@ -153,7 +127,77 @@ public class TravellingModeFragment extends SherlockMapFragment {
 			}
 		});
 
-		return super.onCreateView(inflater, container, savedInstanceState);
+		drivingButton.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+
+				travelling_mode = 1;
+
+				if (markerPoints.size() >= 2) {
+					LatLng origin = markerPoints.get(0);
+					LatLng dest = markerPoints.get(1);
+
+					// Getting URL to the Google Directions API
+					String url = DirectionsParserTask.getDirectionsUrl(origin,
+							dest, travelling_mode);
+
+					DirectionsDownloadTask directionsdownloadTask = new DirectionsDownloadTask();
+
+					// Start downloading json data from Google Directions API
+					directionsdownloadTask.execute(url);
+				}
+			}
+		});
+
+		walkingButton.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+
+				travelling_mode = 2;
+
+				if (markerPoints.size() >= 2) {
+					LatLng origin = markerPoints.get(0);
+					LatLng dest = markerPoints.get(1);
+
+					// Getting URL to the Google Directions API
+					String url = DirectionsParserTask.getDirectionsUrl(origin,
+							dest, travelling_mode);
+
+					DirectionsDownloadTask directionsdownloadTask = new DirectionsDownloadTask();
+
+					// Start downloading json data from Google Directions API
+					directionsdownloadTask.execute(url);
+				}
+			}
+		});
+
+		bicyclingButton.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+
+				travelling_mode = 3;
+
+				if (markerPoints.size() >= 2) {
+					LatLng origin = markerPoints.get(0);
+					LatLng dest = markerPoints.get(1);
+
+					// Getting URL to the Google Directions API
+					String url = DirectionsParserTask.getDirectionsUrl(origin,
+							dest, travelling_mode);
+
+					DirectionsDownloadTask directionsdownloadTask = new DirectionsDownloadTask();
+
+					// Start downloading json data from Google Directions API
+					directionsdownloadTask.execute(url);
+				}
+			}
+		});
+
+		return view;
+
 	}
 
 	public void toggleStyle() {

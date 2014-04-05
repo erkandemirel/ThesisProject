@@ -9,25 +9,5 @@
         android:id="@+id/action_bar_toggle_style"
         android:showAsAction="never"
         android:title="@string/toggle_style"/>
-    <item
-        android:id="@+id/travelling_menu_item"
-        android:icon="@drawable/ic_action_storage"
-        android:showAsAction="ifRoom"
-        android:title="@string/travelling_mode">
-        <menu>
-            <item
-                android:id="@+id/driving"
-                android:showAsAction="ifRoom"
-                android:title="@string/driving"/>
-            <item
-                android:id="@+id/walking"
-                android:showAsAction="ifRoom"
-                android:title="@string/walking"/>
-            <item
-                android:id="@+id/bicycling"
-                android:showAsAction="ifRoom"
-                android:title="@string/bicycling"/>
-        </menu>
-    </item>
 
 </menu>

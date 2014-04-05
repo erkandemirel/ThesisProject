@@ -14,6 +14,7 @@ import android.view.Window;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.astuetz.PagerSlidingTabStrip;
+
 import fragments.TravellingModeFragment;
 import fragments.FindNearbyPlacesFragment;
 import fragments.FindPlacesByAutoCompleteTextViewFragment;
@@ -102,6 +103,7 @@ public class TabActivity extends SherlockFragmentActivity {
 				return TravellingModeFragment.newInstance(position,
 						"Travelling Mode");
 			}
+
 			return null;
 
 		}
