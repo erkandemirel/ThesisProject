@@ -32,7 +32,7 @@ public class AutoCompletePlaceUrl {
 	public static String getPlaceDetailsUrl(String ref) {
 
 		// Obtain browser key from https://code.google.com/apis/console
-		String key = "key=AIzaSyCY_82OmlfAthkwLOijR0zkPVMyJTK8UUo";
+		String key = "key=AIzaSyC-CiTPvezMf-xewmsVJZp8P8PcnWkSJow";
 
 		// reference of place
 		String reference = "reference=" + ref;

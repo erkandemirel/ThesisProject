@@ -17,7 +17,6 @@ import com.astuetz.PagerSlidingTabStrip;
 
 import fragments.TravellingModeFragment;
 import fragments.FindNearbyPlacesFragment;
-import fragments.FindPlacesByAutoCompleteTextViewFragment;
 
 public class TabActivity extends SherlockFragmentActivity {
 
@@ -63,7 +62,7 @@ public class TabActivity extends SherlockFragmentActivity {
 
 	public class TabPagerAdapter extends FragmentPagerAdapter {
 
-		private final String[] TITLES = { "Find Places", "Find Nearby Places",
+		private final String[] TITLES = { "Find Nearby Places",
 				"Travelling Mode" };
 
 		public TabPagerAdapter(FragmentManager fm) {
@@ -86,19 +85,12 @@ public class TabActivity extends SherlockFragmentActivity {
 
 			if (position == 0) {
 
-				return FindPlacesByAutoCompleteTextViewFragment.newInstance(
-						position, "Find Places");
-
-			}
-
-			else if (position == 1) {
-
 				return FindNearbyPlacesFragment.newInstance(position,
 						"Find Nearby Places");
 
 			}
 
-			else if (position == 2) {
+			else if (position == 1) {
 
 				return TravellingModeFragment.newInstance(position,
 						"Travelling Mode");

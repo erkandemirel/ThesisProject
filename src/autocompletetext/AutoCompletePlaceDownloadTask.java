@@ -7,8 +7,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import fragments.FindPlacesByAutoCompleteTextViewFragment;
-
+import fragments.FindNearbyPlacesFragment;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -45,10 +44,10 @@ public class AutoCompletePlaceDownloadTask extends
 		super.onPostExecute(result);
 
 		switch (downloadType) {
-		case FindPlacesByAutoCompleteTextViewFragment.PLACES:
+		case FindNearbyPlacesFragment.PLACES:
 			// Creating ParserTask for parsing Google Places
 			placesParserTask = new AutoCompletePlaceParserTask(
-					FindPlacesByAutoCompleteTextViewFragment.PLACES);
+					FindNearbyPlacesFragment.PLACES);
 
 			// Start parsing google places json data
 			// This causes to execute doInBackground() of ParserTask class
@@ -56,10 +55,10 @@ public class AutoCompletePlaceDownloadTask extends
 
 			break;
 
-		case FindPlacesByAutoCompleteTextViewFragment.PLACES_DETAILS:
+		case FindNearbyPlacesFragment.PLACES_DETAILS:
 			// Creating ParserTask for parsing Google Places
 			placeDetailsParserTask = new AutoCompletePlaceParserTask(
-					FindPlacesByAutoCompleteTextViewFragment.PLACES_DETAILS);
+					FindNearbyPlacesFragment.PLACES_DETAILS);
 
 			// Starting Parsing the JSON string
 			// This causes to execute doInBackground() of ParserTask class

@@ -14,6 +14,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.example.navigation.R;
 import com.example.navigation.TabActivity;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -26,13 +27,23 @@ import android.os.Handler;
 
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.AutoCompleteTextView;
+import android.widget.Button;
+import android.widget.SimpleAdapter;
 import android.widget.Toast;
+import android.widget.AdapterView.OnItemClickListener;
+import autocompletetext.AutoCompletePlaceDownloadTask;
+import autocompletetext.AutoCompletePlaceParserTask;
+import autocompletetext.AutoCompletePlaceUrl;
 
 public class FindNearbyPlacesFragment extends SherlockMapFragment {
 
@@ -42,15 +53,28 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 
 	private static final float UNDEFINED_COLOR = -1;
 
+	public static final int PLACES = 0;
+
+	public static final int PLACES_DETAILS = 1;
+
 	Place[] nearPlaces;
 
 	String[] nearPlacesType;
 
 	String[] nearPlacesName;
 
-	LatLng latLng;
+	public static LatLng latLng;
+
+	public static AutoCompleteTextView textViewPlaces;
+
+	Button nearbyPlacesButton;
 
 	HashMap<String, Place> nearPlacesReference = new HashMap<String, Place>();
+
+	AutoCompletePlaceDownloadTask placesDownloadTask;
+	AutoCompletePlaceDownloadTask placeDetailsDownloadTask;
+	AutoCompletePlaceParserTask placesParserTask;
+	AutoCompletePlaceParserTask placeDetailsParserTask;
 
 	Handler handler = new Handler();
 	Random random = new Random();
@@ -117,7 +141,27 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 
 		handler.postDelayed(runner, random.nextInt(2000));
 
-		googleMap = getMap();
+		final View view = inflater.inflate(R.layout.nearby_places, container,
+				false);
+
+		nearbyPlacesButton = (Button) view
+				.findViewById(R.id.nearby_places_button);
+
+		textViewPlaces = (AutoCompleteTextView) view
+				.findViewById(R.id.actv_places);
+		textViewPlaces.setThreshold(1);
+
+		FragmentManager fragmentManager = getFragmentManager();
+
+		FragmentTransaction fragmentTransaction = fragmentManager
+				.beginTransaction();
+
+		fragmentTransaction.commit();
+
+		SupportMapFragment supportMapFragment = (SupportMapFragment) fragmentManager
+				.findFragmentById(R.id.nearby_places_map);
+
+		googleMap = supportMapFragment.getMap();
 
 		nearPlacesReference = new HashMap<String, Place>();
 
@@ -171,7 +215,68 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 			}
 		});
 
-		return super.onCreateView(inflater, container, savedInstanceState);
+		textViewPlaces.addTextChangedListener(new TextWatcher() {
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before,
+					int count) {
+				// Creating a DownloadTask to download Google Places matching
+				// "s"
+				placesDownloadTask = new AutoCompletePlaceDownloadTask(PLACES);
+
+				// Getting url to the Google Places Autocomplete api
+				String url = AutoCompletePlaceUrl.getAutoCompleteUrl(s
+						.toString());
+
+				// Start downloading Google Places
+				// This causes to execute doInBackground() of DownloadTask class
+				placesDownloadTask.execute(url);
+
+			}
+
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
+
+			}
+		});
+
+		textViewPlaces.setOnItemClickListener(new OnItemClickListener() {
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View view, int index,
+					long id) {
+
+				SimpleAdapter adapter = (SimpleAdapter) arg0.getAdapter();
+
+				HashMap<String, String> hm = (HashMap<String, String>) adapter
+						.getItem(index);
+
+				// Creating a DownloadTask to download Places details of
+				// the
+				// selected place
+				placeDetailsDownloadTask = new AutoCompletePlaceDownloadTask(
+						PLACES_DETAILS);
+
+				// Getting url to the Google Places details api
+				String url = AutoCompletePlaceUrl.getPlaceDetailsUrl(hm
+						.get("reference"));
+
+				// Start downloading Google Place Details
+				// This causes to execute doInBackground() of
+				// DownloadTask class
+				placeDetailsDownloadTask.execute(url);
+
+			}
+		});
+
+		return view;
 
 	}
 
@@ -188,7 +293,7 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 		markers.clear();
 	}
 
-	private Marker addMarker(LatLng latLng, float color) {
+	public static Marker addMarker(LatLng latLng, float color) {
 		// Creating a marker
 		MarkerOptions markerOptions = new MarkerOptions();
 

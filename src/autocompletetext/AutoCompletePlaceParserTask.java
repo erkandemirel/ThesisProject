@@ -8,11 +8,9 @@ import org.json.JSONObject;
 import com.example.navigation.TabActivity;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-
-import fragments.FindPlacesByAutoCompleteTextViewFragment;
-
+import fragments.FindNearbyPlacesFragment;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.SimpleAdapter;
@@ -35,21 +33,24 @@ public class AutoCompletePlaceParserTask extends
 			jObject = new JSONObject(params[0]);
 
 			switch (parserType) {
-			case FindPlacesByAutoCompleteTextViewFragment.PLACES:
+			case FindNearbyPlacesFragment.PLACES:
 				AutoCompletePlaceJSONParser placeJsonParser = new AutoCompletePlaceJSONParser();
 				// Getting the parsed data as a List construct
 				list = placeJsonParser.parse(jObject);
+
 				break;
-			case FindPlacesByAutoCompleteTextViewFragment.PLACES_DETAILS:
+			case FindNearbyPlacesFragment.PLACES_DETAILS:
 				AutoCompletePlaceDetailsJSONParser placeDetailsJsonParser = new AutoCompletePlaceDetailsJSONParser();
 				// Getting the parsed data as a List construct
 				list = placeDetailsJsonParser.parse(jObject);
-			}
 
+			}
 		} catch (Exception e) {
 			Log.d("Exception", e.toString());
 		}
+
 		return list;
+
 	}
 
 	@Override
@@ -57,7 +58,7 @@ public class AutoCompletePlaceParserTask extends
 
 		switch (parserType) {
 
-		case FindPlacesByAutoCompleteTextViewFragment.PLACES:
+		case FindNearbyPlacesFragment.PLACES:
 			String[] from = new String[] { "description" };
 			int[] to = new int[] { android.R.id.text1 };
 
@@ -65,10 +66,10 @@ public class AutoCompletePlaceParserTask extends
 					result, android.R.layout.simple_list_item_1, from, to);
 
 			// Setting the adapter
-			FindPlacesByAutoCompleteTextViewFragment.textViewPlaces.setAdapter(adapter);
+			FindNearbyPlacesFragment.textViewPlaces.setAdapter(adapter);
 			break;
 
-		case FindPlacesByAutoCompleteTextViewFragment.PLACES_DETAILS:
+		case FindNearbyPlacesFragment.PLACES_DETAILS:
 			HashMap<String, String> hm = result.get(0);
 
 			// Getting latitude from the parsed data
@@ -77,28 +78,17 @@ public class AutoCompletePlaceParserTask extends
 			// Getting longitude from the parsed data
 			double longitude = Double.parseDouble(hm.get("lng"));
 
-			// Getting reference to the SupportMapFragment of the
-			// activity_main.xml
+			FindNearbyPlacesFragment.latLng = new LatLng(latitude, longitude);
 
-			LatLng point = new LatLng(latitude, longitude);
-
-			CameraUpdate cameraPosition = CameraUpdateFactory.newLatLng(point);
-			CameraUpdate cameraZoom = CameraUpdateFactory.zoomBy(5);
+			CameraUpdate cameraPosition = CameraUpdateFactory
+					.newLatLng(FindNearbyPlacesFragment.latLng);
 
 			// Showing the user input location in the Google Map
-			FindPlacesByAutoCompleteTextViewFragment.googleMap
-					.moveCamera(cameraPosition);
-			FindPlacesByAutoCompleteTextViewFragment.googleMap
-					.animateCamera(cameraZoom);
-
-			MarkerOptions options = new MarkerOptions();
-			options.position(point);
-			options.title("Position");
-			options.snippet("Latitude:" + latitude + ",Longitude:" + longitude);
+			FindNearbyPlacesFragment.googleMap.moveCamera(cameraPosition);
 
 			// Adding the marker in the Google Map
-			FindPlacesByAutoCompleteTextViewFragment.googleMap
-					.addMarker(options);
+			FindNearbyPlacesFragment.addMarker(FindNearbyPlacesFragment.latLng,
+					BitmapDescriptorFactory.HUE_GREEN);
 
 			break;
 		}
