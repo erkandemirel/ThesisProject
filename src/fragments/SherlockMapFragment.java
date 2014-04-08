@@ -1,6 +1,7 @@
 package fragments;
 
 import android.app.Activity;
+import android.os.Bundle;
 import android.support.v4.app.Watson.OnCreateOptionsMenuListener;
 import android.support.v4.app.Watson.OnOptionsItemSelectedListener;
 import android.support.v4.app.Watson.OnPrepareOptionsMenuListener;
@@ -70,5 +71,10 @@ public class SherlockMapFragment extends SupportMapFragment implements
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Nothing to see here.
 		return false;
+	}
+
+	protected void onPostCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		
 	}
 }

@@ -30,5 +30,8 @@
     <string name="autocomplete_menu_item">Auto Complete Menu</string>
     <string name="nearby_places">Nearby Places</string>
     <string name="tooltip">This is the tooltip</string>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+    <string name="place_icon">Place Icon</string>
 
 </resources>
