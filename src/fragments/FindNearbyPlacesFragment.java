@@ -34,8 +34,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -45,12 +43,10 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import autocompletetext.AutoCompletePlaceDownloadTask;
 import autocompletetext.AutoCompletePlaceParserTask;
-import autocompletetext.AutoCompletePlaceUrl;
 
 public class FindNearbyPlacesFragment extends SherlockMapFragment {
 
@@ -143,10 +139,6 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 		final View view = inflater.inflate(R.layout.nearby_places, container,
 				false);
 
-		textViewPlaces = (AutoCompleteTextView) view
-				.findViewById(R.id.actv_places);
-		textViewPlaces.setThreshold(1);
-
 		FragmentManager fragmentManager = getFragmentManager();
 
 		FragmentTransaction fragmentTransaction = fragmentManager
@@ -159,15 +151,22 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 
 		googleMap = supportMapFragment.getMap();
 
+		if (googleMap != null) {
+			googleMap.getUiSettings().setCompassEnabled(true);
+			googleMap.setMyLocationEnabled(true);
+		}
+
 		nearPlacesReference = new HashMap<String, Place>();
 
 		placeNames = new String[] { "Airport", "ATM", "Bank", "Bus Station",
 				"Cinema", "Hospital", "Mosque", "Restaurant" };
-		placeIcons = new int[] { R.drawable.airport, R.drawable.bubble_blue,
-				R.drawable.places, R.drawable.search, R.drawable.settings,
-				R.drawable.settings2, R.drawable.settings3, R.drawable.earth };
+		placeIcons = new int[] { R.drawable.airport1, R.drawable.atm,
+				R.drawable.bank1, R.drawable.bus, R.drawable.cinema2,
+				R.drawable.hospital1, R.drawable.mosque, R.drawable.restaurant3 };
 		drawlayout = (DrawerLayout) view.findViewById(R.id.drawer_layout);
+
 		listview = (ListView) view.findViewById(R.id.left_drawer);
+
 		drawlayout.setDrawerShadow(R.drawable.drawer_shadow,
 				GravityCompat.START);
 		drawlayout.setBackgroundColor(Color.WHITE);
@@ -272,67 +271,6 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 				fragmentTransaction.commit();
 
 				return false;
-			}
-		});
-
-		textViewPlaces.addTextChangedListener(new TextWatcher() {
-
-			@Override
-			public void onTextChanged(CharSequence s, int start, int before,
-					int count) {
-				// Creating a DownloadTask to download Google Places matching
-				// "s"
-				placesDownloadTask = new AutoCompletePlaceDownloadTask(PLACES);
-
-				// Getting url to the Google Places Autocomplete api
-				String url = AutoCompletePlaceUrl.getAutoCompleteUrl(s
-						.toString());
-
-				// Start downloading Google Places
-				// This causes to execute doInBackground() of DownloadTask class
-				placesDownloadTask.execute(url);
-
-			}
-
-			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count,
-					int after) {
-
-			}
-
-			@Override
-			public void afterTextChanged(Editable s) {
-
-			}
-		});
-
-		textViewPlaces.setOnItemClickListener(new OnItemClickListener() {
-
-			@SuppressWarnings("unchecked")
-			@Override
-			public void onItemClick(AdapterView<?> arg0, View view, int index,
-					long id) {
-
-				SimpleAdapter adapter = (SimpleAdapter) arg0.getAdapter();
-
-				HashMap<String, String> hm = (HashMap<String, String>) adapter
-						.getItem(index);
-
-				// Creating a DownloadTask to download Places details of
-				// the
-				// selected place
-				placeDetailsDownloadTask = new AutoCompletePlaceDownloadTask(
-						PLACES_DETAILS);
-
-				// Getting url to the Google Places details api
-				String url = AutoCompletePlaceUrl.getPlaceDetailsUrl(hm
-						.get("reference"));
-
-				// Start downloading Google Place Details
-				// This causes to execute doInBackground() of
-				// DownloadTask class
-				placeDetailsDownloadTask.execute(url);
-
 			}
 		});
 

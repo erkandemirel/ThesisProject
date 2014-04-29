@@ -33,5 +33,6 @@
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
     <string name="place_icon">Place Icon</string>
+    <string name="add_bookmarks">Add Bookmarks</string>
 
 </resources>
