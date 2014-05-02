@@ -1,7 +1,5 @@
 package places;
 
-import java.util.HashMap;
-
 import org.json.JSONObject;
 
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -18,8 +16,6 @@ public class PlacesParserTask extends AsyncTask<String, Integer, Place[]> {
 
 	// Specifies the drawMarker() to draw the marker with default color
 	private static final float UNDEFINED_COLOR = -1;
-
-	HashMap<String, Place> nearPlacesReference = new HashMap<String, Place>();
 
 	JSONObject jObject;
 
@@ -62,7 +58,7 @@ public class PlacesParserTask extends AsyncTask<String, Integer, Place[]> {
 			// Adding place reference to HashMap with marker id as HashMap
 			// key
 			// to get its reference in infowindow click event listener
-			nearPlacesReference.put(m.getId(), place);
+			FindNearbyPlacesFragment.nearPlacesReference.put(m.getId(), place);
 		}
 	}
 

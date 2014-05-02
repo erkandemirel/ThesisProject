@@ -34,5 +34,11 @@
     <string name="drawer_close">Close navigation drawer</string>
     <string name="place_icon">Place Icon</string>
     <string name="add_bookmarks">Add Bookmarks</string>
+    <string name="route_nearby_places">Route</string>
+    <string name="add_database_nearby_places">Add Bookmarks</string>
+    <string name="address_text">Address</string>
+    <string name="title_text">Title</string>
+    <string name="add_database_button">Add Bookmarks</string>
+    <string name="cancel_database_button">Cancel</string>
 
 </resources>

@@ -16,7 +16,6 @@ import android.view.Window;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.astuetz.PagerSlidingTabStrip;
 
-import fragments.BookmarksFragment;
 import fragments.TravellingModeFragment;
 import fragments.FindNearbyPlacesFragment;
 
@@ -29,7 +28,7 @@ public class TabActivity extends SherlockFragmentActivity {
 	public static DisplayMetrics displayMetrics;
 
 	public static Context mainContext;
-	
+
 	public static Activity tabActivity;
 
 	@SuppressLint("Recycle")
@@ -43,11 +42,11 @@ public class TabActivity extends SherlockFragmentActivity {
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 
 		setContentView(R.layout.activity_tabs);
-		
-		 getSupportActionBar().setHomeButtonEnabled(true);
-         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-         getSupportActionBar().setDisplayShowHomeEnabled(true);
-         getSupportActionBar().setDisplayShowTitleEnabled(true);
+
+		getSupportActionBar().setHomeButtonEnabled(true);
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		getSupportActionBar().setDisplayShowHomeEnabled(true);
+		getSupportActionBar().setDisplayShowTitleEnabled(true);
 
 		tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
 		pager = (ViewPager) findViewById(R.id.pager);
@@ -72,7 +71,7 @@ public class TabActivity extends SherlockFragmentActivity {
 	public class TabPagerAdapter extends FragmentPagerAdapter {
 
 		private final String[] TITLES = { "Find Nearby Places",
-				"Travelling Mode","Bookmarks" };
+				"Travelling Mode" };
 
 		public TabPagerAdapter(FragmentManager fm) {
 			super(fm);
@@ -103,12 +102,6 @@ public class TabActivity extends SherlockFragmentActivity {
 
 				return TravellingModeFragment.newInstance(position,
 						"Travelling Mode");
-			}
-			
-			else if (position == 2) {
-
-				return BookmarksFragment.newInstance(position,
-						"Bookmarks");
 			}
 
 			return null;

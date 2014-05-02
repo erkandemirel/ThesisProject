@@ -1,7 +1,5 @@
 package database;
 
-import java.sql.SQLException;
-
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;

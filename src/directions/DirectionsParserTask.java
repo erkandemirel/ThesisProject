@@ -6,10 +6,14 @@ import java.util.List;
 
 import org.json.JSONObject;
 
+import places.PlaceDialogFragment;
+import trafficparser.ParseTask;
+
 import com.example.navigation.TabActivity;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import fragments.FindNearbyPlacesFragment;
 import fragments.TravellingModeFragment;
 
 import android.graphics.Color;
@@ -75,21 +79,51 @@ public class DirectionsParserTask extends
 
 						points.add(position);
 					}
+					
+					// ///////////////////////////////checking whether there is
+					// a incident or not
+					outerloop: for (int j = 0; j < ParseTask.positionList
+							.size(); j++) {
+						for (int j2 = 0; j2 < points.size(); j2++) {
+							LatLng pos = ParseTask.positionList.get(j);
+
+							if (liesOnSegment(points.get(j2),
+									points.get(j2 + 1), pos)) {
+								Toast.makeText(TabActivity.mainContext,
+										"THERE IS AN INCIDENT IN THE ROUTE",
+										Toast.LENGTH_LONG).show();
+
+								break outerloop;
+
+							} else {
+								break;
+							}
+						}
+
+					}
 
 					// Adding all the points in the route to LineOptions
 					lineOptions.addAll(points);
 					lineOptions.width(2);
 
-					// Changing the color polyline according to the mode
-					if (TravellingModeFragment.travelling_mode == 1)
-						lineOptions.color(Color.RED);
-					else if (TravellingModeFragment.travelling_mode == 2)
-						lineOptions.color(Color.GREEN);
-					else if (TravellingModeFragment.travelling_mode == 3)
-						lineOptions.color(Color.BLUE);
+					if (PlaceDialogFragment.travelling_mode == 0) {
+						// Changing the color polyline according to the mode
+						if (TravellingModeFragment.travelling_mode == 1)
+							lineOptions.color(Color.RED);
+						else if (TravellingModeFragment.travelling_mode == 2)
+							lineOptions.color(Color.GREEN);
+						else if (TravellingModeFragment.travelling_mode == 3)
+							lineOptions.color(Color.BLUE);
 
-					// Drawing polyline in the Google Map for the i-th route
-					TravellingModeFragment.googleMap.addPolyline(lineOptions);
+						// Drawing polyline in the Google Map for the i-th route
+						TravellingModeFragment.googleMap
+								.addPolyline(lineOptions);
+					} else if (PlaceDialogFragment.travelling_mode == 1) {
+
+						lineOptions.color(Color.BLUE);
+						FindNearbyPlacesFragment.googleMap
+								.addPolyline(lineOptions);
+					}
 
 				}
 			}
@@ -146,5 +180,38 @@ public class DirectionsParserTask extends
 
 		return url;
 	}
+	
+	// finds coordinates between two coordinates//////////////////
+		boolean liesOnSegment(LatLng a, LatLng b, LatLng c) {
+
+			double crossProduct = (c.longitude - b.longitude)
+					* (b.latitude - a.latitude) - (c.latitude - b.latitude)
+					* (b.longitude - a.longitude);
+			double dotProduct = (c.latitude - a.latitude)
+					* (c.latitude - b.latitude) + (c.longitude - a.longitude)
+					* (c.longitude - b.longitude);
+			double squaredlengthba = (b.latitude - a.latitude)
+					* (b.latitude - a.latitude) + (b.longitude - a.longitude)
+					* (b.longitude - a.longitude);
+
+			/*double distance = Math.abs(((b.longitude - a.longitude) * c.latitude)
+					+ ((a.latitude - b.latitude) * c.longitude) - b.latitude
+					* b.longitude + a.longitude * b.latitude - a.latitude
+					* b.longitude + b.latitude * b.longitude)
+					/ Math.sqrt((b.longitude - a.longitude)
+							* (b.longitude - a.longitude)
+							+ (a.latitude - b.latitude) * (a.latitude - b.latitude));
+
+			if(distance==0)
+				return true;
+			*/ 
+
+
+			if (Math.abs(crossProduct) < Math.E && dotProduct > 0
+					&& dotProduct < squaredlengthba)
+				return true;
+			else
+				return false;
+		}
 
 }

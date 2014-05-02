@@ -5,7 +5,15 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import tools.GPSTracker;
+
 import com.example.navigation.R;
+import com.example.navigation.TabActivity;
+import com.google.android.gms.maps.model.LatLng;
+
+import directions.DirectionsDownloadTask;
+import directions.DirectionsParserTask;
+import fragments.AddDatabaseFragment;
 
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
@@ -13,29 +21,40 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
-
-
 
 @SuppressLint("ValidFragment")
 public class PlaceDialogFragment extends DialogFragment {
 	TextView photoCountText = null;
 	TextView placeVicinityText = null;
 	ViewFlipper placeFlipper = null;
-	Place placeObject = null;
+	public static Place placeObject = null;
 	DisplayMetrics metrics = null;
+	Button addButton;
+	Button routeButton;
+
+	GPSTracker gps;
+
+	public static int travelling_mode = 0;
 
 	public PlaceDialogFragment() {
 		super();
 	}
 
+	@SuppressWarnings("static-access")
 	public PlaceDialogFragment(Place place, DisplayMetrics dm) {
 		super();
 		this.placeObject = place;
@@ -55,6 +74,87 @@ public class PlaceDialogFragment extends DialogFragment {
 
 		// Getting reference to TextView to display place vicinity
 		placeVicinityText = (TextView) v.findViewById(R.id.tv_vicinity);
+
+		addButton = (Button) v.findViewById(R.id.place_add_database);
+
+		routeButton = (Button) v.findViewById(R.id.place_direction);
+
+		addButton.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+
+				DisplayMetrics dm = new DisplayMetrics();
+
+				WindowManager windowManager = (WindowManager) TabActivity.mainContext
+						.getSystemService(TabActivity.WINDOW_SERVICE);
+
+				Display display = windowManager.getDefaultDisplay();
+
+				display.getMetrics(dm);
+
+				AddDatabaseFragment addDatabaseFragment = new AddDatabaseFragment();
+
+				FragmentManager fm = getFragmentManager();
+
+				FragmentTransaction fragmentTransaction = fm.beginTransaction();
+
+				fragmentTransaction.add(addDatabaseFragment, "TAG");
+
+				fragmentTransaction.commit();
+
+			}
+		});
+
+		routeButton.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				gps = new GPSTracker(TabActivity.mainContext);
+
+				travelling_mode = 1;
+
+				if (gps.canGetLocation()) {
+
+					double originLatitude = gps.getLatitude();
+					double originLongitude = gps.getLongitude();
+
+					double latitude = 0;
+					double longitude = 0;
+
+					try {
+
+						latitude = Double
+								.parseDouble(PlaceDialogFragment.placeObject.placeLatitude);
+					} catch (NumberFormatException e) {
+
+					}
+
+					try {
+
+						longitude = Double
+								.parseDouble(PlaceDialogFragment.placeObject.placeLongitude);
+					} catch (NumberFormatException e) {
+
+					}
+
+					LatLng origin = new LatLng(originLatitude, originLongitude);
+
+					LatLng dest = new LatLng(latitude, longitude);
+
+					String url = DirectionsParserTask.getDirectionsUrl(origin,
+							dest, 1);
+
+					DirectionsDownloadTask directionsdownloadTask = new DirectionsDownloadTask();
+
+					directionsdownloadTask.execute(url);
+				} else {
+
+					gps.showSettingsAlert();
+				}
+
+			}
+		});
 
 		if (placeObject != null) {
 
@@ -99,6 +199,7 @@ public class PlaceDialogFragment extends DialogFragment {
 				imageDownloadTask[i].execute(url);
 			}
 		}
+
 		return v;
 	}
 
@@ -156,4 +257,5 @@ public class PlaceDialogFragment extends DialogFragment {
 
 		}
 	}
+
 }

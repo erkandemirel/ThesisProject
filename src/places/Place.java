@@ -11,10 +11,10 @@ public class Place implements Parcelable {
 	public String placeLongitude = "";
 
 	// Place Name
-	String placeName = "";
+	public String placeName = "";
 
 	// Vicinity of the place
-	String vicinity = "";
+	public String vicinity = "";
 
 	// Photos of the place
 	// Photo is a Parcelable class
