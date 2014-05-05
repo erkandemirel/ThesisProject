@@ -16,6 +16,7 @@ import android.view.Window;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.astuetz.PagerSlidingTabStrip;
 
+import fragments.BookmarksFragment;
 import fragments.TravellingModeFragment;
 import fragments.FindNearbyPlacesFragment;
 
@@ -71,7 +72,7 @@ public class TabActivity extends SherlockFragmentActivity {
 	public class TabPagerAdapter extends FragmentPagerAdapter {
 
 		private final String[] TITLES = { "Find Nearby Places",
-				"Travelling Mode" };
+				"Travelling Mode", "Bookmarks" };
 
 		public TabPagerAdapter(FragmentManager fm) {
 			super(fm);
@@ -102,6 +103,11 @@ public class TabActivity extends SherlockFragmentActivity {
 
 				return TravellingModeFragment.newInstance(position,
 						"Travelling Mode");
+			}
+
+			else if (position == 2) {
+
+				return BookmarksFragment.newInstance(position, "Bookmarks");
 			}
 
 			return null;

@@ -8,8 +8,8 @@ import org.json.JSONObject;
 
 import android.os.AsyncTask;
 
+import com.example.navigation.R;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -113,8 +113,24 @@ public class ParseTask extends AsyncTask<String, Void, JSONObject> {
 											.println("resources lane NULL for :"
 													+ j + " ITEM");
 								}
+
+								// roadClosed"
 								// lane"
-								if (!jobjjarrresources.isNull("point")) {
+								if (!jobjjarrresources.isNull("roadClosed")) {
+
+									strroadClosed = jobjjarrresources
+											.getString("roadClosed");
+									System.out.println("resources roadClosed :"
+											+ strroadClosed);
+								} else {
+									System.out
+											.println("resources roadClosed NULL for :"
+													+ j + " ITEM");
+								}
+								// lane"
+								if (!jobjjarrresources.isNull("point")
+										&& strroadClosed
+												.equalsIgnoreCase("true")) {
 									JSONObject jobjpoint = jobjjarrresources
 											.getJSONObject("point");
 
@@ -144,27 +160,13 @@ public class ParseTask extends AsyncTask<String, Void, JSONObject> {
 
 												positionList
 														.add(positionLatLng);
-												/*
-												 * MarkerOptions
-												 * bingTrafficMarker = new
-												 * MarkerOptions() .position(
-												 * positionLatLng)
-												 * .title(strdescription);
-												 * 
-												 * BitmapDescriptor icon =
-												 * BitmapDescriptorFactory
-												 * .fromPath(
-												 * "C:\\Users\\ali\\git\\Erkan\\ThesisProject\\res\\drawable-xhdpi\\attention.png"
-												 * );
-												 * bingTrafficMarker.icon(icon);
-												 * 
-												 * gm.addMarker(bingTrafficMarker
-												 * );
-												 */
-												gm.addMarker(new MarkerOptions()
-
-												.position(positionLatLng)
-														.title(strdescription));
+												MarkerOptions bingTrafficMarker = new MarkerOptions()
+														.position(
+																positionLatLng)
+														.title(strdescription)
+														.icon(BitmapDescriptorFactory
+																.fromResource(R.drawable.attention));
+												gm.addMarker(bingTrafficMarker);
 
 											}
 
@@ -187,19 +189,6 @@ public class ParseTask extends AsyncTask<String, Void, JSONObject> {
 													+ j + " ITEM");
 								}
 
-								// roadClosed"
-								// lane"
-								if (!jobjjarrresources.isNull("roadClosed")) {
-
-									strroadClosed = jobjjarrresources
-											.getString("roadClosed");
-									System.out.println("resources roadClosed :"
-											+ strroadClosed);
-								} else {
-									System.out
-											.println("resources roadClosed NULL for :"
-													+ j + " ITEM");
-								}
 								// severity"
 								if (!jobjjarrresources.isNull("severity")) {
 									strroadseverity = jobjjarrresources

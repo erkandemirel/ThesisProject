@@ -49,10 +49,10 @@ import android.widget.AdapterView.OnItemClickListener;
 import autocompletetext.AutoCompletePlaceDownloadTask;
 import autocompletetext.AutoCompletePlaceParserTask;
 
-public class FindNearbyPlacesFragment extends SherlockMapFragment{
+public class FindNearbyPlacesFragment extends SherlockMapFragment {
 
 	public static GoogleMap googleMap;
-	
+
 	private SupportMapFragment fragment;
 
 	private List<Marker> markers = new ArrayList<Marker>();
@@ -130,22 +130,19 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment{
 		}
 		return super.onOptionsItemSelected(item);
 	}
-	
+
 	@Override
 	public void onDestroyView() {
 
-	    FragmentManager fm = getFragmentManager();
+		FragmentManager fm = getFragmentManager();
 
-	    Fragment xmlFragment = fm.findFragmentById(R.id.nearby_places_map);
-	    if (xmlFragment != null) {
-	        fm.beginTransaction().remove(xmlFragment).commit();
-	    }
+		Fragment xmlFragment = fm.findFragmentById(R.id.nearby_places_map);
+		if (xmlFragment != null) {
+			fm.beginTransaction().remove(xmlFragment).commit();
+		}
 
-	    super.onDestroyView();
+		super.onDestroyView();
 	}
-
-	
-
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -155,24 +152,19 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment{
 
 		handler.postDelayed(runner, random.nextInt(2000));
 
-		View view = inflater.inflate(R.layout.nearby_places, container,
-				false);
+		View view = inflater.inflate(R.layout.nearby_places, container, false);
 
 		FragmentManager fragmentManager = getFragmentManager();
-		
-		fragment= (SupportMapFragment) fragmentManager
+
+		fragment = (SupportMapFragment) fragmentManager
 				.findFragmentById(R.id.nearby_places_map);
-		
-		
 
 		FragmentTransaction fragmentTransaction = fragmentManager
 				.beginTransaction();
 
 		fragmentTransaction.commit();
 
-		
 		googleMap = fragment.getMap();
-		
 
 		if (googleMap != null) {
 			googleMap.getUiSettings().setCompassEnabled(true);
@@ -246,46 +238,47 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment{
 
 			}
 		});
-		
-		
-		 // Handling screen rotation
-        if(savedInstanceState !=null) {
 
-            // Removes all the existing links from marker id to place object
-        	nearPlacesReference.clear();
+		// Handling screen rotation
+		if (savedInstanceState != null) {
 
-            //If near by places are already saved
-            if(savedInstanceState.containsKey("places")){
+			// Removes all the existing links from marker id to place object
+			nearPlacesReference.clear();
 
-                // Retrieving the array of place objects
-            	nearPlaces = (Place[]) savedInstanceState.getParcelableArray("places");
+			// If near by places are already saved
+			if (savedInstanceState.containsKey("places")) {
 
-                // Traversing through each near by place object
-                for(int i=0;i<nearPlaces.length;i++){
+				// Retrieving the array of place objects
+				nearPlaces = (Place[]) savedInstanceState
+						.getParcelableArray("places");
 
-                    // Getting latitude and longitude of the i-th place
-                    LatLng point = new LatLng(Double.parseDouble(nearPlaces[i].placeLatitude),
-                    Double.parseDouble(nearPlaces[i].placeLongitude));
+				// Traversing through each near by place object
+				for (int i = 0; i < nearPlaces.length; i++) {
 
-                    // Drawing the marker corresponding to the i-th place
-                    Marker m = addMarker(point,UNDEFINED_COLOR);
+					// Getting latitude and longitude of the i-th place
+					LatLng point = new LatLng(
+							Double.parseDouble(nearPlaces[i].placeLatitude),
+							Double.parseDouble(nearPlaces[i].placeLongitude));
 
-                    // Linkng i-th place and its marker id
-                    nearPlacesReference.put(m.getId(), nearPlaces[i]);
-                }
-            }
+					// Drawing the marker corresponding to the i-th place
+					Marker m = addMarker(point, UNDEFINED_COLOR);
 
-            // If a touched location is already saved
-            if(savedInstanceState.containsKey("location")){
+					// Linkng i-th place and its marker id
+					nearPlacesReference.put(m.getId(), nearPlaces[i]);
+				}
+			}
 
-                // Retrieving the touched location and setting in member variable
-            	latLng = (LatLng) savedInstanceState.getParcelable("location");
+			// If a touched location is already saved
+			if (savedInstanceState.containsKey("location")) {
 
-               // Drawing a marker at the touched location
-               addMarker(latLng, BitmapDescriptorFactory.HUE_GREEN);
-           }
-       }
+				// Retrieving the touched location and setting in member
+				// variable
+				latLng = (LatLng) savedInstanceState.getParcelable("location");
 
+				// Drawing a marker at the touched location
+				addMarker(latLng, BitmapDescriptorFactory.HUE_GREEN);
+			}
+		}
 
 		// Map Click listener
 		googleMap.setOnMapClickListener(new OnMapClickListener() {
@@ -321,7 +314,6 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment{
 
 				display.getMetrics(dm);
 
-				// Creating a dialog fragment to display the photo
 				PlaceDialogFragment dialogFragment = new PlaceDialogFragment(
 						place, dm);
 
@@ -340,23 +332,23 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment{
 		return view;
 
 	}
-	
-	 /**
-	    * A callback function, executed on screen rotation
-	    */
-	    @Override
+
+	/**
+	 * A callback function, executed on screen rotation
+	 */
+	@Override
 	public void onSaveInstanceState(Bundle outState) {
-	 
-	        // Saving all the near by places objects
-	        if(nearPlaces!=null)
-	            outState.putParcelableArray("places", nearPlaces);
-	 
-	        // Saving the touched location
-	        if(latLng!=null)
-	            outState.putParcelable("location", latLng);
-	 
-	        super.onSaveInstanceState(outState);
-	    }
+
+		// Saving all the near by places objects
+		if (nearPlaces != null)
+			outState.putParcelableArray("places", nearPlaces);
+
+		// Saving the touched location
+		if (latLng != null)
+			outState.putParcelable("location", latLng);
+
+		super.onSaveInstanceState(outState);
+	}
 
 	public void toggleStyle() {
 		if (GoogleMap.MAP_TYPE_NORMAL == googleMap.getMapType()) {

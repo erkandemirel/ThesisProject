@@ -1,32 +1,35 @@
 package fragments;
 
-import places.PlaceDialogFragment;
-
 import com.example.navigation.R;
 import com.example.navigation.TabActivity;
+
 import database.Bookmarks;
 import database.BookmarksContentProvider;
+import database.BookmarksItem;
 
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-public class AddDatabaseFragment extends DialogFragment {
+@SuppressLint("ValidFragment")
+public class EditDatabaseFragment extends DialogFragment {
 
 	TextView addressTextView;
 	TextView titleTextView;
 	EditText addressEditText;
 	EditText titleEditText;
-	Button addButton;
+	Button editButton;
 	Button cancelButton;
 
 	String addressText;
@@ -34,52 +37,45 @@ public class AddDatabaseFragment extends DialogFragment {
 	double latitude;
 	double longitude;
 
-	public AddDatabaseFragment() {
+	public static BookmarksItem bookmarksItem = null;
+	DisplayMetrics metrics = null;
+	long rowID;
+
+	public EditDatabaseFragment() {
 		super();
+	}
+
+	@SuppressWarnings("static-access")
+	public EditDatabaseFragment(long id, BookmarksItem item, DisplayMetrics dm) {
+		super();
+		this.rowID = id;
+		this.bookmarksItem = item;
+		this.metrics = dm;
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 
-		View view = inflater.inflate(R.layout.database_add_places_view, null);
+		View view = inflater.inflate(R.layout.edit_database_places_view, null);
 		getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
 
 		addressTextView = (TextView) view.findViewById(R.id.address_textview);
 		titleTextView = (TextView) view.findViewById(R.id.title_textview);
 		addressEditText = (EditText) view.findViewById(R.id.address_edittext);
 		titleEditText = (EditText) view.findViewById(R.id.title_edittext);
-		addButton = (Button) view.findViewById(R.id.add_database_button);
-		cancelButton = (Button) view.findViewById(R.id.cancel_database_button);
+		editButton = (Button) view.findViewById(R.id.edit_database_button);
+		cancelButton = (Button) view.findViewById(R.id.cncl_database_button);
 
-		addressEditText.setText(PlaceDialogFragment.placeObject.vicinity);
-		titleEditText.setText(PlaceDialogFragment.placeObject.placeName);
+		addressEditText.setText(bookmarksItem.getBookmarksItemAddress());
+		titleEditText.setText(bookmarksItem.getBookmarksItemTitle());
 
-		addressText = addressEditText.getText().toString();
-		titleText = titleEditText.getText().toString();
-
-		try {
-
-			latitude = Double
-					.parseDouble(PlaceDialogFragment.placeObject.placeLatitude);
-		} catch (NumberFormatException e) {
-
-		}
-
-		try {
-
-			longitude = Double
-					.parseDouble(PlaceDialogFragment.placeObject.placeLongitude);
-		} catch (NumberFormatException e) {
-
-		}
-
-		addButton.setOnClickListener(new OnClickListener() {
+		editButton.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
 
-				addLocationsToBookmarks();
+				updateLocationsToBookmarks();
 				BookmarksFragment.bookmarksArrayAdapter.notifyDataSetChanged();
 				getDialog().dismiss();
 
@@ -98,7 +94,7 @@ public class AddDatabaseFragment extends DialogFragment {
 		return view;
 	}
 
-	public void addLocationsToBookmarks() {
+	public void updateLocationsToBookmarks() {
 
 		ContentValues contentValues = new ContentValues();
 
@@ -108,7 +104,8 @@ public class AddDatabaseFragment extends DialogFragment {
 		contentValues.put(Bookmarks.ADDRESS, addressText);
 
 		final ContentResolver cr = TabActivity.mainContext.getContentResolver();
-		cr.insert(BookmarksContentProvider.CONTENT_URI, contentValues);
+		cr.update(BookmarksContentProvider.CONTENT_URI, contentValues,
+				Bookmarks.FIELD_ROW_ID + "=" + rowID, null);
 
 	}
 
