@@ -109,7 +109,7 @@ public class AddDatabaseFragment extends DialogFragment {
 
 		final ContentResolver cr = TabActivity.mainContext.getContentResolver();
 		cr.insert(BookmarksContentProvider.CONTENT_URI, contentValues);
-
+		BookmarksFragment.bookmarksArrayAdapter.notifyDataSetChanged();
 	}
 
 }

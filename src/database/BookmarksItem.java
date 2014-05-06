@@ -15,9 +15,9 @@ public class BookmarksItem implements Serializable {
 	public BookmarksItem(int bookmarksItemID, String bookmarksItemTitle,
 			String bookmarksItemAddress) {
 
-		this.bookmarksItemID = bookmarksItemID;
-		this.bookmarksItemTitle = bookmarksItemTitle;
-		this.bookmarksItemAddress = bookmarksItemAddress;
+		this.setBookmarksItemID(bookmarksItemID);
+		this.setBookmarksItemTitle(bookmarksItemTitle);
+		this.setBookmarksItemAddress(bookmarksItemAddress);
 	}
 
 	public int getBookmarksItemID() {

@@ -106,6 +106,7 @@ public class EditDatabaseFragment extends DialogFragment {
 		final ContentResolver cr = TabActivity.mainContext.getContentResolver();
 		cr.update(BookmarksContentProvider.CONTENT_URI, contentValues,
 				Bookmarks.FIELD_ROW_ID + "=" + rowID, null);
+		BookmarksFragment.bookmarksArrayAdapter.notifyDataSetChanged();
 
 	}
 

@@ -1,7 +1,6 @@
 package com.example.navigation;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 
@@ -29,8 +28,6 @@ public class TabActivity extends SherlockFragmentActivity {
 	public static DisplayMetrics displayMetrics;
 
 	public static Context mainContext;
-
-	public static Activity tabActivity;
 
 	@SuppressLint("Recycle")
 	@Override

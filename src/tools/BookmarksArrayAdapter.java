@@ -7,6 +7,7 @@ import com.example.navigation.R;
 import database.BookmarksItem;
 
 import android.content.Context;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,14 +19,16 @@ public class BookmarksArrayAdapter extends ArrayAdapter<BookmarksItem> {
 	int resource;
 	Context context;
 	List<BookmarksItem> bookmarksItemList;
+	private SparseBooleanArray mSelectedItemsIds;
 
 	public BookmarksArrayAdapter(Context context, int resource,
-			List<BookmarksItem> objects) {
-		super(context, resource, objects);
+			List<BookmarksItem> bookmarksItemList) {
+		super(context, resource, bookmarksItemList);
 
+		mSelectedItemsIds = new SparseBooleanArray();
 		this.resource = resource;
 		this.context = context;
-		this.bookmarksItemList = objects;
+		this.bookmarksItemList = bookmarksItemList;
 
 	}
 
@@ -65,6 +68,27 @@ public class BookmarksArrayAdapter extends ArrayAdapter<BookmarksItem> {
 
 		return bookmarksItemView;
 
+	}
+
+	public SparseBooleanArray getSelectedIds() {
+		return mSelectedItemsIds;
+	}
+
+	public void toggleSelection(int position) {
+		selectView(position, !mSelectedItemsIds.get(position));
+	}
+
+	public void selectView(int position, boolean value) {
+		if (value)
+			mSelectedItemsIds.put(position, value);
+		else
+			mSelectedItemsIds.delete(position);
+		notifyDataSetChanged();
+	}
+
+	public void removeSelection() {
+		mSelectedItemsIds = new SparseBooleanArray();
+		notifyDataSetChanged();
 	}
 
 }

@@ -40,5 +40,6 @@
     <string name="title_text">Title</string>
     <string name="add_database_button">Add Bookmarks</string>
     <string name="cancel_database_button">Cancel</string>
+    <string name="delete">Delete</string>
 
 </resources>
