@@ -6,6 +6,7 @@ import java.util.Random;
 import tools.BookmarksArrayAdapter;
 
 import com.actionbarsherlock.app.SherlockFragment;
+
 import com.example.navigation.R;
 import com.example.navigation.TabActivity;
 
@@ -27,6 +28,7 @@ import android.util.DisplayMetrics;
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
 import android.view.Display;
+import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -50,6 +52,8 @@ public class BookmarksFragment extends SherlockFragment implements
 
 	public long rowId;
 
+	View root;
+
 	Handler handler = new Handler();
 	Random random = new Random();
 	Runnable runner = new Runnable() {
@@ -68,31 +72,39 @@ public class BookmarksFragment extends SherlockFragment implements
 		return fragment;
 	}
 
+	@SuppressWarnings({ "static-access", "unchecked" })
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 
 		super.onActivityCreated(savedInstanceState);
 
-		getLoaderManager().initLoader(0, null, this);
-	}
+		setRetainInstance(true);
 
-	@SuppressWarnings("static-access")
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
-
-		handler.postDelayed(runner, random.nextInt(2000));
-
-		View view = inflater.inflate(R.layout.booksmark, container, false);
-
-		bookmarksListView = (ListView) view
+		bookmarksListView = (ListView) root
 				.findViewById(R.id.bookmarksListView);
 
-		bookmarksItems = new ArrayList<BookmarksItem>();
+		if (savedInstanceState != null) {
+			ArrayList<BookmarksItem> newbookmarksItems = (ArrayList<BookmarksItem>) savedInstanceState
+					.getSerializable("oldList");
+			if (newbookmarksItems != null) {
+				bookmarksArrayAdapter = new BookmarksArrayAdapter(
+						getActivity(), R.layout.bookmarks_item,
+						newbookmarksItems);
+			}
 
-		bookmarksArrayAdapter = new BookmarksArrayAdapter(getActivity(),
-				R.layout.bookmarks_item, bookmarksItems);
+		}
+
+		else {
+			bookmarksItems = new ArrayList<BookmarksItem>();
+			bookmarksArrayAdapter = new BookmarksArrayAdapter(getActivity(),
+					R.layout.bookmarks_item, bookmarksItems);
+
+		}
+
+		
 		bookmarksListView.setAdapter(bookmarksArrayAdapter);
+
+		getLoaderManager().initLoader(0, null, this);
 
 		bookmarksListView
 				.setChoiceMode(bookmarksListView.CHOICE_MODE_MULTIPLE_MODAL);
@@ -159,7 +171,6 @@ public class BookmarksFragment extends SherlockFragment implements
 					public boolean onItemLongClick(AdapterView<?> arg0,
 							View arg1, int position, long arg3) {
 
-						
 						bookmarksListView.setItemChecked(position, true);
 						return false;
 					}
@@ -201,7 +212,32 @@ public class BookmarksFragment extends SherlockFragment implements
 
 		});
 
-		return view;
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putSerializable("oldList", bookmarksItems);
+	}
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+
+		handler.postDelayed(runner, random.nextInt(2000));
+
+		if (root != null) {
+			ViewGroup parent = (ViewGroup) root.getParent();
+			if (parent != null)
+				parent.removeView(root);
+		}
+		try {
+			root = inflater.inflate(R.layout.booksmark, container, false);
+		} catch (InflateException e) {
+			/* map is already there, just return view as it is */
+		}
+
+		return root;
 
 	}
 
@@ -229,8 +265,6 @@ public class BookmarksFragment extends SherlockFragment implements
 			final int id = cursor.getInt(idColumnIndex);
 			final String title = cursor.getString(titleColumnIndex);
 			final String address = cursor.getString(addressColumnIndex);
-
-			System.out.println(id + address + title);
 
 			bookmarksItems.add(new BookmarksItem(id, title, address));
 		}

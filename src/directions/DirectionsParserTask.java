@@ -45,6 +45,7 @@ public class DirectionsParserTask extends
 		return routes;
 	}
 
+	@SuppressWarnings("unused")
 	@Override
 	protected void onPostExecute(List<List<HashMap<String, String>>> result) {
 

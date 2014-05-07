@@ -30,13 +30,13 @@ import android.os.Bundle;
 import android.os.Handler;
 
 import android.support.v4.app.ActionBarDrawerToggle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.util.DisplayMetrics;
 import android.view.Display;
+import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -85,6 +85,8 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 	private ActionBarDrawerToggle actbardrawertoggle = null;
 	private String[] placeNames;
 	private int[] placeIcons;
+	
+	View root;
 
 	Handler handler = new Handler();
 	Random random = new Random();
@@ -132,27 +134,28 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 	}
 
 	@Override
-	public void onDestroyView() {
-
-		FragmentManager fm = getFragmentManager();
-
-		Fragment xmlFragment = fm.findFragmentById(R.id.nearby_places_map);
-		if (xmlFragment != null) {
-			fm.beginTransaction().remove(xmlFragment).commit();
-		}
-
-		super.onDestroyView();
-	}
-
-	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 
 		super.onCreateView(inflater, container, savedInstanceState);
 
 		handler.postDelayed(runner, random.nextInt(2000));
+		
+		
+		
+		
+		 if (root!= null) {
+		        ViewGroup parent = (ViewGroup) root.getParent();
+		        if (parent != null)
+		            parent.removeView(root);
+		    }
+		    try {
+		        root= inflater.inflate(R.layout.nearby_places, container, false);
+		    } catch (InflateException e) {
+		        /* map is already there, just return view as it is */
+		    }
 
-		View view = inflater.inflate(R.layout.nearby_places, container, false);
+		//View view = inflater.inflate(R.layout.nearby_places, container, false);
 
 		FragmentManager fragmentManager = getFragmentManager();
 
@@ -178,9 +181,9 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 		placeIcons = new int[] { R.drawable.airport1, R.drawable.atm,
 				R.drawable.bank1, R.drawable.bus, R.drawable.cinema2,
 				R.drawable.hospital1, R.drawable.mosque, R.drawable.restaurant3 };
-		drawlayout = (DrawerLayout) view.findViewById(R.id.drawer_layout);
+		drawlayout = (DrawerLayout) root.findViewById(R.id.drawer_layout);
 
-		listview = (ListView) view.findViewById(R.id.left_drawer);
+		listview = (ListView) root.findViewById(R.id.left_drawer);
 
 		drawlayout.setDrawerShadow(R.drawable.drawer_shadow,
 				GravityCompat.START);
@@ -329,13 +332,10 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 			}
 		});
 
-		return view;
+		return root;
 
 	}
 
-	/**
-	 * A callback function, executed on screen rotation
-	 */
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 

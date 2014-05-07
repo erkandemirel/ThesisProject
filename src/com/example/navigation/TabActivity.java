@@ -10,8 +10,6 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
-import android.view.Window;
-
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.astuetz.PagerSlidingTabStrip;
 
@@ -36,8 +34,6 @@ public class TabActivity extends SherlockFragmentActivity {
 		super.onCreate(savedInstanceState);
 
 		mainContext = getApplicationContext();
-
-		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 
 		setContentView(R.layout.activity_tabs);
 

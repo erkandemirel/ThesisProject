@@ -31,11 +31,11 @@ import android.os.Bundle;
 import android.os.Handler;
 
 import android.support.v4.app.ActionBarDrawerToggle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -62,10 +62,12 @@ public class TravellingModeFragment extends SherlockMapFragment {
 	private String[] travellingModeNames;
 
 	private int[] travellingModeIcons;
-	
+
 	String bingUrl = "http://dev.virtualearth.net/REST/v1/Traffic/Incidents/";
 	String bingKey = "AoHoD_fdpQD73-OoTNnnsGzYu5ClXmVNAGr2t-M_wKbR8TWHqKrZR1X6GHI5pzWm";
 	String url2;
+
+	View root;
 
 	Handler handler = new Handler();
 	Random random = new Random();
@@ -110,20 +112,6 @@ public class TravellingModeFragment extends SherlockMapFragment {
 		}
 		return super.onOptionsItemSelected(item);
 	}
-	
-	
-	@Override
-	public void onDestroyView() {
-
-	    FragmentManager fm = getFragmentManager();
-
-	    Fragment xmlFragment = fm.findFragmentById(R.id.map);
-	    if (xmlFragment != null) {
-	        fm.beginTransaction().remove(xmlFragment).commit();
-	    }
-
-	    super.onDestroyView();
-	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -132,8 +120,17 @@ public class TravellingModeFragment extends SherlockMapFragment {
 
 		handler.postDelayed(runner, random.nextInt(2000));
 
-		View view = inflater
-				.inflate(R.layout.travelling_mode, container, false);
+		if (root != null) {
+			ViewGroup parent = (ViewGroup) root.getParent();
+			if (parent != null)
+				parent.removeView(root);
+		}
+		try {
+			root = inflater.inflate(R.layout.travelling_mode, container, false);
+		} catch (InflateException e) {
+			/* map is already there, just return view as it is */
+		}
+
 		FragmentManager fragmentManager = getFragmentManager();
 
 		fragment = (SupportMapFragment) fragmentManager
@@ -156,9 +153,9 @@ public class TravellingModeFragment extends SherlockMapFragment {
 		travellingModeIcons = new int[] { R.drawable.car, R.drawable.walk,
 				R.drawable.bicycle };
 
-		drawlayout = (DrawerLayout) view
+		drawlayout = (DrawerLayout) root
 				.findViewById(R.id.travelling_mode_layout);
-		listview = (ListView) view
+		listview = (ListView) root
 				.findViewById(R.id.travelling_mode_sliding_menu);
 		drawlayout.setDrawerShadow(R.drawable.drawer_shadow,
 				GravityCompat.START);
@@ -273,13 +270,13 @@ public class TravellingModeFragment extends SherlockMapFragment {
 
 			}
 		});
-		
+
 		googleMap.setOnCameraChangeListener(new OnCameraChangeListener() {
 			@Override
 			public void onCameraChange(CameraPosition position) {
 				LatLngBounds bounds = googleMap.getProjection()
 						.getVisibleRegion().latLngBounds;
-				if (getAreaInTheScreen(bounds) < 5000000) {
+				if (getAreaInTheScreen(bounds) < 10000000) {
 					new ParseTask(googleMap).execute(urlBuilder(bounds));
 				} else {
 					googleMap.clear();
@@ -327,7 +324,7 @@ public class TravellingModeFragment extends SherlockMapFragment {
 			}
 		});
 
-		return view;
+		return root;
 
 	}
 
