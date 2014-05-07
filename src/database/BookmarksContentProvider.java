@@ -1,11 +1,14 @@
 package database;
 
+import java.util.ArrayList;
+
 import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
@@ -36,7 +39,13 @@ public class BookmarksContentProvider extends ContentProvider {
 
 	}
 
-	private Bookmarks bookmarksDB;
+	private static Bookmarks bookmarksDB;
+	
+	private static SQLiteDatabase database;
+	
+	private static String[] allColumns = { Bookmarks.FIELD_ROW_ID,
+			Bookmarks.FIELD_LNG, Bookmarks.FIELD_LAT,
+			Bookmarks.LOCATION_NAME, Bookmarks.ADDRESS };
 
 	@Override
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
@@ -172,6 +181,43 @@ public class BookmarksContentProvider extends ContentProvider {
 		getContext().getContentResolver().notifyChange(uri, null);
 
 		return updateCount;
+	}
+	
+	
+
+
+	public static void open() throws SQLException {
+		database = bookmarksDB.getWritableDatabase();
+	}
+
+	public static void close() {
+		bookmarksDB.close();
+	}
+
+	public static ArrayList<BookmarksItem> getAllBookmarksItem() {
+		ArrayList<BookmarksItem> list = new ArrayList<BookmarksItem>();
+		database = bookmarksDB.getWritableDatabase();
+		Cursor cursor = database.query(Bookmarks.DATABASE_TABLE,
+				allColumns, null, null, null, null, null);
+		cursor.moveToFirst();
+		while (!cursor.isAfterLast()) {
+			BookmarksItem item = cursorToComment(cursor);
+			list.add(item);
+			cursor.moveToNext();
+		}
+		// make sure to close the cursor
+		cursor.close();
+
+		return list;
+
+	}
+
+	private static BookmarksItem cursorToComment(Cursor cursor) {
+		BookmarksItem item = new BookmarksItem();
+		item.setBookmarksItemID(cursor.getInt(0));
+		item.setBookmarksItemTitle(cursor.getString(3));
+		item.setBookmarksItemAddress(cursor.getString(4));
+		return item;
 	}
 
 }

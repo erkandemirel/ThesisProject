@@ -27,7 +27,7 @@ public class EditDatabaseFragment extends DialogFragment {
 
 	TextView addressTextView;
 	TextView titleTextView;
-	EditText addressEditText;
+	TextView addressEditText;
 	EditText titleEditText;
 	Button editButton;
 	Button cancelButton;
@@ -62,7 +62,7 @@ public class EditDatabaseFragment extends DialogFragment {
 
 		addressTextView = (TextView) view.findViewById(R.id.address_textview);
 		titleTextView = (TextView) view.findViewById(R.id.title_textview);
-		addressEditText = (EditText) view.findViewById(R.id.address_edittext);
+		addressEditText = (TextView) view.findViewById(R.id.address_edittext);
 		titleEditText = (EditText) view.findViewById(R.id.title_edittext);
 		editButton = (Button) view.findViewById(R.id.edit_database_button);
 		cancelButton = (Button) view.findViewById(R.id.cncl_database_button);

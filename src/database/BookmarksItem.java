@@ -2,7 +2,12 @@ package database;
 
 import java.io.Serializable;
 
-public class BookmarksItem implements Serializable {
+import android.annotation.SuppressLint;
+import android.os.Parcel;
+import android.os.Parcelable;
+
+@SuppressLint("ParcelCreator")
+public class BookmarksItem implements Serializable, Parcelable {
 
 	/**
 	 * 
@@ -18,6 +23,10 @@ public class BookmarksItem implements Serializable {
 		this.setBookmarksItemID(bookmarksItemID);
 		this.setBookmarksItemTitle(bookmarksItemTitle);
 		this.setBookmarksItemAddress(bookmarksItemAddress);
+	}
+
+	public BookmarksItem() {
+
 	}
 
 	public int getBookmarksItemID() {
@@ -42,6 +51,17 @@ public class BookmarksItem implements Serializable {
 
 	public void setBookmarksItemAddress(String bookmarksItemAddress) {
 		this.bookmarksItemAddress = bookmarksItemAddress;
+	}
+
+	@Override
+	public int describeContents() {
+
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+
 	}
 
 }

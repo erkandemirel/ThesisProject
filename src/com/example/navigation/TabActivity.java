@@ -3,19 +3,19 @@ package com.example.navigation;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
-
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
+
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.astuetz.PagerSlidingTabStrip;
 
 import fragments.BookmarksFragment;
-import fragments.TravellingModeFragment;
 import fragments.FindNearbyPlacesFragment;
+import fragments.TravellingModeFragment;
 
 public class TabActivity extends SherlockFragmentActivity {
 
@@ -35,6 +35,7 @@ public class TabActivity extends SherlockFragmentActivity {
 
 		mainContext = getApplicationContext();
 
+
 		setContentView(R.layout.activity_tabs);
 
 		getSupportActionBar().setHomeButtonEnabled(true);
@@ -45,7 +46,7 @@ public class TabActivity extends SherlockFragmentActivity {
 		tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
 		pager = (ViewPager) findViewById(R.id.pager);
 		adapter = new TabPagerAdapter(getSupportFragmentManager());
-
+		pager.setOffscreenPageLimit(3);
 		pager.setAdapter(adapter);
 
 		// Creating an instance of DisplayMetrics

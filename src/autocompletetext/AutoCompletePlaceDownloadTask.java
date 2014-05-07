@@ -7,9 +7,9 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import fragments.FindNearbyPlacesFragment;
 import android.os.AsyncTask;
 import android.util.Log;
+import fragments.FindNearbyPlacesFragment;
 
 public class AutoCompletePlaceDownloadTask extends
 		AsyncTask<String, Void, String> {

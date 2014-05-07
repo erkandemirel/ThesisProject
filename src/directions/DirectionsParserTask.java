@@ -8,6 +8,9 @@ import org.json.JSONObject;
 
 import places.PlaceDialogFragment;
 import trafficparser.ParseTask;
+import android.graphics.Color;
+import android.os.AsyncTask;
+import android.widget.Toast;
 
 import com.example.navigation.TabActivity;
 import com.google.android.gms.maps.model.LatLng;
@@ -15,10 +18,6 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import fragments.FindNearbyPlacesFragment;
 import fragments.TravellingModeFragment;
-
-import android.graphics.Color;
-import android.os.AsyncTask;
-import android.widget.Toast;
 
 public class DirectionsParserTask extends
 		AsyncTask<String, Integer, List<List<HashMap<String, String>>>> {
@@ -45,7 +44,6 @@ public class DirectionsParserTask extends
 		return routes;
 	}
 
-	@SuppressWarnings("unused")
 	@Override
 	protected void onPostExecute(List<List<HashMap<String, String>>> result) {
 
@@ -80,7 +78,7 @@ public class DirectionsParserTask extends
 
 						points.add(position);
 					}
-					
+
 					// ///////////////////////////////checking whether there is
 					// a incident or not
 					outerloop: for (int j = 0; j < ParseTask.positionList
@@ -181,7 +179,7 @@ public class DirectionsParserTask extends
 
 		return url;
 	}
-	
+
 	// finds coordinates between two coordinates//////////////////
 		boolean liesOnSegment(LatLng a, LatLng b, LatLng c) {
 

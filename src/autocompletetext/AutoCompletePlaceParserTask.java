@@ -5,15 +5,17 @@ import java.util.List;
 
 import org.json.JSONObject;
 
+import android.os.AsyncTask;
+import android.util.Log;
+import android.widget.SimpleAdapter;
+
 import com.example.navigation.TabActivity;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+
 import fragments.FindNearbyPlacesFragment;
-import android.os.AsyncTask;
-import android.util.Log;
-import android.widget.SimpleAdapter;
 
 public class AutoCompletePlaceParserTask extends
 		AsyncTask<String, Integer, List<HashMap<String, String>>> {

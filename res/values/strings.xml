@@ -41,5 +41,11 @@
     <string name="add_database_button">Add Bookmarks</string>
     <string name="cancel_database_button">Cancel</string>
     <string name="delete">Delete</string>
+    <string name="travelling_autocomplete_text_menu_item">Directions</string>
+    <string name="from">From</string>
+    <string name="to">To</string>
+    <string name="desc">Route</string>
+    <string name="load_directions">Load Directions</string>
+    <string name="directions_input">Directions Input</string>
 
 </resources>

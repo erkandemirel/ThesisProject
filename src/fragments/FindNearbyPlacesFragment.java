@@ -85,7 +85,7 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 	private ActionBarDrawerToggle actbardrawertoggle = null;
 	private String[] placeNames;
 	private int[] placeIcons;
-	
+
 	View root;
 
 	Handler handler = new Handler();
@@ -140,22 +140,19 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 		super.onCreateView(inflater, container, savedInstanceState);
 
 		handler.postDelayed(runner, random.nextInt(2000));
-		
-		
-		
-		
-		 if (root!= null) {
-		        ViewGroup parent = (ViewGroup) root.getParent();
-		        if (parent != null)
-		            parent.removeView(root);
-		    }
-		    try {
-		        root= inflater.inflate(R.layout.nearby_places, container, false);
-		    } catch (InflateException e) {
-		        /* map is already there, just return view as it is */
-		    }
 
-		//View view = inflater.inflate(R.layout.nearby_places, container, false);
+		if (root != null) {
+			ViewGroup parent = (ViewGroup) root.getParent();
+			if (parent != null)
+				parent.removeView(root);
+		}
+		try {
+			root = inflater.inflate(R.layout.nearby_places, container, false);
+		} catch (InflateException e) {
+			/* map is already there, just return view as it is */
+		}
+
+		
 
 		FragmentManager fragmentManager = getFragmentManager();
 
@@ -243,7 +240,7 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 		});
 
 		// Handling screen rotation
-		if (savedInstanceState != null) {
+	/*	if (savedInstanceState != null) {
 
 			// Removes all the existing links from marker id to place object
 			nearPlacesReference.clear();
@@ -281,7 +278,7 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 				// Drawing a marker at the touched location
 				addMarker(latLng, BitmapDescriptorFactory.HUE_GREEN);
 			}
-		}
+		}*/
 
 		// Map Click listener
 		googleMap.setOnMapClickListener(new OnMapClickListener() {
