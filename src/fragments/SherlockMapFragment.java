@@ -49,7 +49,7 @@ public class SherlockMapFragment extends SupportMapFragment implements
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		// Nothing to see here.
+
 	}
 
 	@Override
@@ -59,7 +59,7 @@ public class SherlockMapFragment extends SupportMapFragment implements
 
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
-		// Nothing to see here.
+
 	}
 
 	@Override
@@ -69,12 +69,11 @@ public class SherlockMapFragment extends SupportMapFragment implements
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		// Nothing to see here.
+
 		return false;
 	}
 
 	protected void onPostCreate(Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
-		
+
 	}
 }

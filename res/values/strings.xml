@@ -6,10 +6,6 @@
     <string name="hello_world">Hello world!</string>
     <string name="hybrid_mode">Hybrid Mode</string>
     <string name="show_traffic">Show Traffic</string>
-    <string name="terrain_mode">Terrain Mode</string>
-    <string name="satellite_mode">Satellite Mode</string>
-    <string name="roadmap_mode">Road Map Mode</string>
-    <string name="toggle_style">Toggle Style</string>
     <string name="clear_markers">Clear markers</string>
     <string name="start_animation">Start Animation</string>
     <string name="stop_animation">Stop Animation</string>
@@ -39,6 +35,7 @@
     <string name="address_text">Address</string>
     <string name="title_text">Title</string>
     <string name="add_database_button">Add Bookmarks</string>
+    <string name="edit_database_button">Update</string>
     <string name="cancel_database_button">Cancel</string>
     <string name="delete">Delete</string>
     <string name="travelling_autocomplete_text_menu_item">Directions</string>
@@ -47,5 +44,13 @@
     <string name="desc">Route</string>
     <string name="load_directions">Load Directions</string>
     <string name="directions_input">Directions Input</string>
+    <string name="map_type">Map Type</string>
+    <string name="normal_map">Normal Map</string>
+    <string name="satellite_map">Satellite Map</string>
+    <string name="terrain_map">Terrain Map</string>
+    <string name="hybrid_map">Hybrid Map</string>
+    <string name="get_route">Route</string>
+    <string name="current_loc">Current Location</string>
+    <string name="dest_loc">Destination Location</string>
 
 </resources>

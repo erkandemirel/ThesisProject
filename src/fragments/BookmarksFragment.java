@@ -34,19 +34,17 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AdapterView;
-import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 
 @SuppressLint("NewApi")
 public class BookmarksFragment extends SherlockFragment implements
-		LoaderManager.LoaderCallbacks<Cursor>,OnClickListener {
+		LoaderManager.LoaderCallbacks<Cursor> {
 
 	ListView bookmarksListView;
 	ArrayList<BookmarksItem> bookmarksItems;
@@ -54,7 +52,7 @@ public class BookmarksFragment extends SherlockFragment implements
 
 	public long rowId;
 
-	View root;
+	View bookmarksRootView;
 
 	Handler handler = new Handler();
 	Random random = new Random();
@@ -80,27 +78,14 @@ public class BookmarksFragment extends SherlockFragment implements
 
 		super.onActivityCreated(savedInstanceState);
 
-		bookmarksListView = (ListView) root
+		bookmarksListView = (ListView) bookmarksRootView
 				.findViewById(R.id.bookmarksListView);
-		
+
 		bookmarksItems = BookmarksContentProvider.getAllBookmarksItem();
 		bookmarksArrayAdapter = new BookmarksArrayAdapter(getActivity(),
 				R.layout.bookmarks_item, bookmarksItems);
 		bookmarksListView.setAdapter(bookmarksArrayAdapter);
 		bookmarksArrayAdapter.notifyDataSetChanged();
-
-		/*
-		 * if (savedInstanceState != null) { ArrayList<BookmarksItem>
-		 * newbookmarksItems = savedInstanceState
-		 * .getParcelableArrayList("oldList"); bookmarksArrayAdapter = new
-		 * BookmarksArrayAdapter(getActivity(), R.layout.bookmarks_item,
-		 * newbookmarksItems); bookmarksArrayAdapter.notifyDataSetChanged(); }
-		 * 
-		 * else { bookmarksItems = new ArrayList<BookmarksItem>();
-		 * bookmarksArrayAdapter = new BookmarksArrayAdapter(getActivity(),
-		 * R.layout.bookmarks_item, bookmarksItems);
-		 * bookmarksArrayAdapter.notifyDataSetChanged(); }
-		 */
 
 		getLoaderManager().initLoader(0, null, this);
 
@@ -178,10 +163,34 @@ public class BookmarksFragment extends SherlockFragment implements
 		bookmarksListView.setOnItemClickListener(new OnItemClickListener() {
 
 			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1,
+			public void onItemClick(AdapterView<?> arg0, View view,
 					int position, long id) {
 
-			
+				rowId = bookmarksItems.get(position).getBookmarksItemID();
+
+				BookmarksItem item = (BookmarksItem) bookmarksListView
+						.getItemAtPosition(position);
+
+				DisplayMetrics dm = new DisplayMetrics();
+
+				WindowManager windowManager = (WindowManager) TabActivity.mainContext
+						.getSystemService(TabActivity.WINDOW_SERVICE);
+
+				Display display = windowManager.getDefaultDisplay();
+
+				display.getMetrics(dm);
+
+				EditDatabaseFragment editDatabaseFragment = new EditDatabaseFragment(
+						rowId, item, dm);
+
+				FragmentManager fm = getFragmentManager();
+
+				FragmentTransaction fragmentTransaction = fm.beginTransaction();
+
+				fragmentTransaction.add(editDatabaseFragment, "TAG");
+
+				fragmentTransaction.commit();
+
 			}
 
 		});
@@ -200,32 +209,31 @@ public class BookmarksFragment extends SherlockFragment implements
 
 		handler.postDelayed(runner, random.nextInt(2000));
 
-		if (root != null) {
-			ViewGroup parent = (ViewGroup) root.getParent();
+		if (bookmarksRootView != null) {
+			ViewGroup parent = (ViewGroup) bookmarksRootView.getParent();
 			if (parent != null)
-				parent.removeView(root);
+				parent.removeView(bookmarksRootView);
 		}
 		try {
-			root = inflater.inflate(R.layout.booksmark, container, false);
+			bookmarksRootView = inflater.inflate(R.layout.booksmark, container,
+					false);
 		} catch (InflateException e) {
-			/* map is already there, just return view as it is */
+
 		}
 
-	
-
-		return root;
+		return bookmarksRootView;
 
 	}
 
 	@Override
 	public void onResume() {
-		//BookmarksContentProvider.open();
+
 		super.onResume();
 	}
 
 	@Override
 	public void onPause() {
-		//BookmarksContentProvider.close();
+
 		super.onPause();
 	}
 
@@ -274,15 +282,4 @@ public class BookmarksFragment extends SherlockFragment implements
 				+ "=" + id, null);
 	}
 
-	@Override
-	public void onClick(View v) {
-		int viewId = v.getId() ;
-		if(viewId == R.id.routeButtonView){
-			Toast.makeText(TabActivity.mainContext, "aaaa", Toast.LENGTH_LONG).show();
-		}
-		
-		
-	}
-
-	
 }

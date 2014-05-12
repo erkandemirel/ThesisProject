@@ -12,7 +12,7 @@ public class Photo implements Parcelable {
 	int photoHeight = 0;
 
 	// Reference of the photo to be used in Google Web Services
-	String photoReference = "";
+	public String photoReference = "";
 
 	// Attributions of the photo
 	// Attribution is a Parcelable class

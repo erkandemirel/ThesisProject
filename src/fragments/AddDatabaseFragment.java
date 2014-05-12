@@ -1,7 +1,5 @@
 package fragments;
 
-import places.PlaceDialogFragment;
-
 import com.example.navigation.R;
 import com.example.navigation.TabActivity;
 import database.Bookmarks;

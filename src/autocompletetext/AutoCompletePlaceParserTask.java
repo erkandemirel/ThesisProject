@@ -68,7 +68,7 @@ public class AutoCompletePlaceParserTask extends
 					result, android.R.layout.simple_list_item_1, from, to);
 
 			// Setting the adapter
-			FindNearbyPlacesFragment.textViewPlaces.setAdapter(adapter);
+			FindNearbyPlacesFragment.nearbyPlacesAutoCompleteTextView.setAdapter(adapter);
 			break;
 
 		case FindNearbyPlacesFragment.PLACES_DETAILS:
@@ -80,16 +80,16 @@ public class AutoCompletePlaceParserTask extends
 			// Getting longitude from the parsed data
 			double longitude = Double.parseDouble(hm.get("lng"));
 
-			FindNearbyPlacesFragment.latLng = new LatLng(latitude, longitude);
+			FindNearbyPlacesFragment.nearbyPlaceslatLng = new LatLng(latitude, longitude);
 
 			CameraUpdate cameraPosition = CameraUpdateFactory
-					.newLatLng(FindNearbyPlacesFragment.latLng);
+					.newLatLng(FindNearbyPlacesFragment.nearbyPlaceslatLng);
 
 			// Showing the user input location in the Google Map
-			FindNearbyPlacesFragment.googleMap.moveCamera(cameraPosition);
+			FindNearbyPlacesFragment.nearbyPlacesGoogleMap.moveCamera(cameraPosition);
 
 			// Adding the marker in the Google Map
-			FindNearbyPlacesFragment.addMarker(FindNearbyPlacesFragment.latLng,
+			FindNearbyPlacesFragment.addMarker(FindNearbyPlacesFragment.nearbyPlaceslatLng,
 					BitmapDescriptorFactory.HUE_GREEN);
 
 			break;

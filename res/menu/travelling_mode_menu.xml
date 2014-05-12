@@ -6,13 +6,27 @@
         android:showAsAction="ifRoom"
         android:title="@string/clear_markers"/>
     <item
-        android:id="@+id/travelling_toggle_style"
+        android:id="@+id/get_route"
         android:showAsAction="ifRoom"
-        android:title="@string/toggle_style"/>
-    
-       <item
-        android:id="@+id/travelling_autocomplete_text_menu_item"
-        android:showAsAction="ifRoom"
-        android:title="@string/travelling_autocomplete_text_menu_item"/>
+        android:title="@string/get_route"/>
+    <item
+        android:id="@+id/map_types"
+        android:showAsAction="always"
+        android:title="@string/map_type">
+        <menu>
+            <item
+                android:id="@+id/travelling_normal_map"
+                android:title="@string/normal_map"/>
+            <item
+                android:id="@+id/travelling_satellite_map"
+                android:title="@string/satellite_map"/>
+            <item
+                android:id="@+id/travelling_terrain_map"
+                android:title="@string/terrain_map"/>
+            <item
+                android:id="@+id/travelling_hybrid_map"
+                android:title="@string/hybrid_map"/>
+        </menu>
+    </item>
 
 </menu>

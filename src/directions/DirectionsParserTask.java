@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.json.JSONObject;
 
-import places.PlaceDialogFragment;
 import trafficparser.ParseTask;
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -17,6 +16,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import fragments.FindNearbyPlacesFragment;
+import fragments.PlaceDialogFragment;
 import fragments.TravellingModeFragment;
 
 public class DirectionsParserTask extends
@@ -44,6 +44,7 @@ public class DirectionsParserTask extends
 		return routes;
 	}
 
+	@SuppressWarnings("unused")
 	@Override
 	protected void onPostExecute(List<List<HashMap<String, String>>> result) {
 
@@ -115,12 +116,12 @@ public class DirectionsParserTask extends
 							lineOptions.color(Color.BLUE);
 
 						// Drawing polyline in the Google Map for the i-th route
-						TravellingModeFragment.googleMap
+						TravellingModeFragment.travellingModeGoogleMap
 								.addPolyline(lineOptions);
 					} else if (PlaceDialogFragment.travelling_mode == 1) {
 
 						lineOptions.color(Color.BLUE);
-						FindNearbyPlacesFragment.googleMap
+						FindNearbyPlacesFragment.nearbyPlacesGoogleMap
 								.addPolyline(lineOptions);
 					}
 

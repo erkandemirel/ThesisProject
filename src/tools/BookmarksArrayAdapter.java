@@ -2,17 +2,19 @@ package tools;
 
 import java.util.List;
 
+import com.example.navigation.AutoCompleteDirectionsActivity;
 import com.example.navigation.R;
 
 import database.BookmarksItem;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -36,7 +38,8 @@ public class BookmarksArrayAdapter extends ArrayAdapter<BookmarksItem> {
 
 	private class ViewHolder {
 		TextView bookmarksTitleView;
-		ImageButton bookmarksAddressView;
+		TextView bookmarksAddressView;
+		ImageView bookmarksRouteView;
 	}
 
 	@Override
@@ -44,7 +47,8 @@ public class BookmarksArrayAdapter extends ArrayAdapter<BookmarksItem> {
 
 		BookmarksItem bookmarksItem = getItem(position);
 		String bookmarksItemTitle = bookmarksItem.getBookmarksItemTitle();
-		//String bookmarksItemAddress = bookmarksItem.getBookmarksItemAddress();
+		final String bookmarksItemAddress = bookmarksItem
+				.getBookmarksItemAddress();
 
 		View bookmarksItemView = convertView;
 		ViewHolder holder;
@@ -57,8 +61,10 @@ public class BookmarksArrayAdapter extends ArrayAdapter<BookmarksItem> {
 			holder = new ViewHolder();
 			holder.bookmarksTitleView = (TextView) bookmarksItemView
 					.findViewById(R.id.bookmarksTitleView);
-			holder.bookmarksAddressView = (ImageButton) bookmarksItemView
-					.findViewById(R.id.routeButtonView);
+			holder.bookmarksAddressView = (TextView) bookmarksItemView
+					.findViewById(R.id.addressTitleView);
+			holder.bookmarksRouteView = (ImageView) bookmarksItemView
+					.findViewById(R.id.bookmarksRouteView);
 
 			bookmarksItemView.setTag(holder);
 		} else {
@@ -66,7 +72,23 @@ public class BookmarksArrayAdapter extends ArrayAdapter<BookmarksItem> {
 		}
 
 		holder.bookmarksTitleView.setText(bookmarksItemTitle);
-		holder.bookmarksAddressView.setImageResource(R.drawable.routebutton);
+		holder.bookmarksRouteView.setImageResource(R.drawable.bookmarksroute);
+		holder.bookmarksAddressView.setText(bookmarksItemAddress);
+
+		
+
+		holder.bookmarksRouteView.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				Intent bookmarksToDirectionActivityIntent = new Intent(context,
+						AutoCompleteDirectionsActivity.class);
+				bookmarksToDirectionActivityIntent.putExtra("bookmarksAddress",
+						bookmarksItemAddress);
+				context.startActivity(bookmarksToDirectionActivityIntent);
+
+			}
+		});
 
 		return bookmarksItemView;
 

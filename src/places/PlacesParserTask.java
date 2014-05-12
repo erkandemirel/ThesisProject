@@ -76,7 +76,7 @@ public class PlacesParserTask extends AsyncTask<String, Integer, Place[]> {
 			markerOptions.icon(BitmapDescriptorFactory.defaultMarker(color));
 
 		// Placing a marker on the touched position
-		Marker m = FindNearbyPlacesFragment.googleMap.addMarker(markerOptions);
+		Marker m = FindNearbyPlacesFragment.nearbyPlacesGoogleMap.addMarker(markerOptions);
 
 		return m;
 	}

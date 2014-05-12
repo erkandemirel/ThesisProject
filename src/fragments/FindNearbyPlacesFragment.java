@@ -1,12 +1,12 @@
 package fragments;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
 import places.Place;
-import places.PlaceDialogFragment;
 import places.PlacesDownloadTask;
 import tools.NearbyPlacesSlidingMenuAdapter;
 
@@ -15,6 +15,7 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.example.navigation.R;
 import com.example.navigation.TabActivity;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
@@ -26,6 +27,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.os.Handler;
 
@@ -51,11 +54,13 @@ import autocompletetext.AutoCompletePlaceParserTask;
 
 public class FindNearbyPlacesFragment extends SherlockMapFragment {
 
-	public static GoogleMap googleMap;
+	public static GoogleMap nearbyPlacesGoogleMap;
 
-	private SupportMapFragment fragment;
+	private SupportMapFragment nearbyPlacesfragment;
 
-	private List<Marker> markers = new ArrayList<Marker>();
+	private Geocoder geocoder;
+
+	private ArrayList<Marker> nearbyPlacesMarkerList;
 
 	private static final float UNDEFINED_COLOR = -1;
 
@@ -63,15 +68,13 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 
 	public static final int PLACES_DETAILS = 1;
 
-	Place[] nearPlaces;
+	Place[] nearbyPlaces;
+	private String[] nearbyPlaceNames;
+	private int[] nearbyPlaceIcons;
 
-	String[] nearPlacesType;
+	public static LatLng nearbyPlaceslatLng;
 
-	String[] nearPlacesName;
-
-	public static LatLng latLng;
-
-	public static AutoCompleteTextView textViewPlaces;
+	public static AutoCompleteTextView nearbyPlacesAutoCompleteTextView;
 
 	public static HashMap<String, Place> nearPlacesReference;
 
@@ -80,13 +83,15 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 	AutoCompletePlaceParserTask placesParserTask;
 	AutoCompletePlaceParserTask placeDetailsParserTask;
 
-	private DrawerLayout drawlayout = null;
-	private ListView listview = null;
-	private ActionBarDrawerToggle actbardrawertoggle = null;
-	private String[] placeNames;
-	private int[] placeIcons;
+	private DrawerLayout nearbyPlacesDrawerLayout = null;
+	private ListView nearbyPlaceslistview = null;
+	private ActionBarDrawerToggle nearbyPlacesDrawerToggle = null;
 
-	View root;
+	private View nearbyPlacesRootView;
+
+	String myLocation = "Mersin,Turkey";
+	List<Address> addresses;
+	MarkerOptions miami;
 
 	Handler handler = new Handler();
 	Random random = new Random();
@@ -118,17 +123,34 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 
-		if (item.getItemId() == R.id.action_bar_clear_locations) {
+		switch (item.getItemId()) {
+		case R.id.places_normal_map:
+			nearbyPlacesGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+			break;
+
+		case R.id.places_satellite_map:
+			nearbyPlacesGoogleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+			break;
+
+		case R.id.places_terrain_map:
+			nearbyPlacesGoogleMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+			break;
+
+		case R.id.places_hybrid_map:
+			nearbyPlacesGoogleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+			break;
+
+		case R.id.places_clear_locations:
 			clearMarkers();
-		} else if (item.getItemId() == R.id.action_bar_toggle_style) {
-			toggleStyle();
-		}
-		if (item.getItemId() == android.R.id.home) {
-			if (drawlayout.isDrawerOpen(listview)) {
-				drawlayout.closeDrawer(listview);
+			break;
+		case android.R.id.home:
+
+			if (nearbyPlacesDrawerLayout.isDrawerOpen(nearbyPlaceslistview)) {
+				nearbyPlacesDrawerLayout.closeDrawer(nearbyPlaceslistview);
 			} else {
-				drawlayout.openDrawer(listview);
+				nearbyPlacesDrawerLayout.openDrawer(nearbyPlaceslistview);
 			}
+			break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -141,22 +163,21 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 
 		handler.postDelayed(runner, random.nextInt(2000));
 
-		if (root != null) {
-			ViewGroup parent = (ViewGroup) root.getParent();
+		if (nearbyPlacesRootView != null) {
+			ViewGroup parent = (ViewGroup) nearbyPlacesRootView.getParent();
 			if (parent != null)
-				parent.removeView(root);
+				parent.removeView(nearbyPlacesRootView);
 		}
 		try {
-			root = inflater.inflate(R.layout.nearby_places, container, false);
+			nearbyPlacesRootView = inflater.inflate(R.layout.nearby_places,
+					container, false);
 		} catch (InflateException e) {
-			/* map is already there, just return view as it is */
-		}
 
-		
+		}
 
 		FragmentManager fragmentManager = getFragmentManager();
 
-		fragment = (SupportMapFragment) fragmentManager
+		nearbyPlacesfragment = (SupportMapFragment) fragmentManager
 				.findFragmentById(R.id.nearby_places_map);
 
 		FragmentTransaction fragmentTransaction = fragmentManager
@@ -164,33 +185,65 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 
 		fragmentTransaction.commit();
 
-		googleMap = fragment.getMap();
+		nearbyPlacesGoogleMap = nearbyPlacesfragment.getMap();
 
-		if (googleMap != null) {
-			googleMap.getUiSettings().setCompassEnabled(true);
-			googleMap.setMyLocationEnabled(true);
+		if (nearbyPlacesGoogleMap != null) {
+			nearbyPlacesGoogleMap.getUiSettings().setCompassEnabled(true);
+			nearbyPlacesGoogleMap.setMyLocationEnabled(true);
 		}
+
+		geocoder = new Geocoder(TabActivity.mainContext);
+		nearbyPlacesMarkerList = new ArrayList<Marker>();
+
+		double latitude = 0;
+		double longitude = 0;
+
+		while (addresses == null) {
+			try {
+				addresses = geocoder.getFromLocationName(myLocation, 1);
+
+			} catch (IOException e) {
+
+				e.printStackTrace();
+			}
+		}
+		Address address = addresses.get(0);
+		if (addresses.size() > 0) {
+			latitude = address.getLatitude();
+			longitude = address.getLongitude();
+		}
+		LatLng City = new LatLng(latitude, longitude);
+
+		miami = new MarkerOptions().position(City).title("Miami");
+
+		nearbyPlacesGoogleMap.addMarker(miami);
+
+		nearbyPlacesGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+				City, 15));
 
 		nearPlacesReference = new HashMap<String, Place>();
 
-		placeNames = new String[] { "Airport", "ATM", "Bank", "Bus Station",
-				"Cinema", "Hospital", "Mosque", "Restaurant" };
-		placeIcons = new int[] { R.drawable.airport1, R.drawable.atm,
-				R.drawable.bank1, R.drawable.bus, R.drawable.cinema2,
-				R.drawable.hospital1, R.drawable.mosque, R.drawable.restaurant3 };
-		drawlayout = (DrawerLayout) root.findViewById(R.id.drawer_layout);
+		nearbyPlaceNames = new String[] { "Airport", "Bank", "Bus Station",
+				"Hospital", "Mosque", "Restaurant" };
+		nearbyPlaceIcons = new int[] { R.drawable.airport,
+				R.drawable.bank, R.drawable.bus,
+				R.drawable.hospital, R.drawable.mosque, R.drawable.restaurant };
+		nearbyPlacesDrawerLayout = (DrawerLayout) nearbyPlacesRootView
+				.findViewById(R.id.drawer_layout);
 
-		listview = (ListView) root.findViewById(R.id.left_drawer);
+		nearbyPlaceslistview = (ListView) nearbyPlacesRootView
+				.findViewById(R.id.left_drawer);
 
-		drawlayout.setDrawerShadow(R.drawable.drawer_shadow,
+		nearbyPlacesDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow,
 				GravityCompat.START);
-		drawlayout.setBackgroundColor(Color.WHITE);
+		nearbyPlacesDrawerLayout.setBackgroundColor(Color.WHITE);
 		NearbyPlacesSlidingMenuAdapter menuAdapter = new NearbyPlacesSlidingMenuAdapter(
-				getSherlockActivity(), placeNames, placeIcons);
-		listview.setAdapter(menuAdapter);
+				getSherlockActivity(), nearbyPlaceNames, nearbyPlaceIcons);
+		nearbyPlaceslistview.setAdapter(menuAdapter);
 
-		actbardrawertoggle = new ActionBarDrawerToggle(getSherlockActivity(),
-				drawlayout, R.drawable.ic_drawer, R.string.drawer_open,
+		nearbyPlacesDrawerToggle = new ActionBarDrawerToggle(
+				getSherlockActivity(), nearbyPlacesDrawerLayout,
+				R.drawable.ic_drawer, R.string.drawer_open,
 				R.string.drawer_close) {
 			public void onDrawerClosed(View view) {
 				super.onDrawerClosed(view);
@@ -202,9 +255,9 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 			}
 
 		};
-		drawlayout.setDrawerListener(actbardrawertoggle);
+		nearbyPlacesDrawerLayout.setDrawerListener(nearbyPlacesDrawerToggle);
 
-		listview.setOnItemClickListener(new OnItemClickListener() {
+		nearbyPlaceslistview.setOnItemClickListener(new OnItemClickListener() {
 
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1,
@@ -212,209 +265,189 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 
 				if (position == 0) {
 					getNearbyPlaces("airport");
-					drawlayout.closeDrawer(listview);
+					nearbyPlacesDrawerLayout.closeDrawer(nearbyPlaceslistview);
 				} else if (position == 1) {
-					getNearbyPlaces("atm");
-					drawlayout.closeDrawer(listview);
-				} else if (position == 2) {
 					getNearbyPlaces("bank");
-					drawlayout.closeDrawer(listview);
-				} else if (position == 3) {
+					nearbyPlacesDrawerLayout.closeDrawer(nearbyPlaceslistview);
+				} else if (position == 2) {
 					getNearbyPlaces("bus_station");
-					drawlayout.closeDrawer(listview);
-				} else if (position == 4) {
-					getNearbyPlaces("cinema");
-					drawlayout.closeDrawer(listview);
-				} else if (position == 5) {
+					nearbyPlacesDrawerLayout.closeDrawer(nearbyPlaceslistview);
+				} else if (position == 3) {
 					getNearbyPlaces("hospital");
-					drawlayout.closeDrawer(listview);
-				} else if (position == 6) {
+					nearbyPlacesDrawerLayout.closeDrawer(nearbyPlaceslistview);
+				} else if (position == 4) {
 					getNearbyPlaces("mosque");
-					drawlayout.closeDrawer(listview);
-				} else if (position == 7) {
+					nearbyPlacesDrawerLayout.closeDrawer(nearbyPlaceslistview);
+				} else if (position == 5) {
 					getNearbyPlaces("restaurant");
-					drawlayout.closeDrawer(listview);
+					nearbyPlacesDrawerLayout.closeDrawer(nearbyPlaceslistview);
 				}
 
 			}
 		});
 
 		// Handling screen rotation
-	/*	if (savedInstanceState != null) {
+		/*
+		 * if (savedInstanceState != null) {
+		 * 
+		 * // Removes all the existing links from marker id to place object
+		 * nearPlacesReference.clear();
+		 * 
+		 * // If near by places are already saved if
+		 * (savedInstanceState.containsKey("places")) {
+		 * 
+		 * // Retrieving the array of place objects nearPlaces = (Place[])
+		 * savedInstanceState .getParcelableArray("places");
+		 * 
+		 * // Traversing through each near by place object for (int i = 0; i <
+		 * nearPlaces.length; i++) {
+		 * 
+		 * // Getting latitude and longitude of the i-th place LatLng point =
+		 * new LatLng( Double.parseDouble(nearPlaces[i].placeLatitude),
+		 * Double.parseDouble(nearPlaces[i].placeLongitude));
+		 * 
+		 * // Drawing the marker corresponding to the i-th place Marker m =
+		 * addMarker(point, UNDEFINED_COLOR);
+		 * 
+		 * // Linkng i-th place and its marker id
+		 * nearPlacesReference.put(m.getId(), nearPlaces[i]); } }
+		 * 
+		 * // If a touched location is already saved if
+		 * (savedInstanceState.containsKey("location")) {
+		 * 
+		 * // Retrieving the touched location and setting in member // variable
+		 * latLng = (LatLng) savedInstanceState.getParcelable("location");
+		 * 
+		 * // Drawing a marker at the touched location addMarker(latLng,
+		 * BitmapDescriptorFactory.HUE_GREEN); } }
+		 */
 
-			// Removes all the existing links from marker id to place object
-			nearPlacesReference.clear();
-
-			// If near by places are already saved
-			if (savedInstanceState.containsKey("places")) {
-
-				// Retrieving the array of place objects
-				nearPlaces = (Place[]) savedInstanceState
-						.getParcelableArray("places");
-
-				// Traversing through each near by place object
-				for (int i = 0; i < nearPlaces.length; i++) {
-
-					// Getting latitude and longitude of the i-th place
-					LatLng point = new LatLng(
-							Double.parseDouble(nearPlaces[i].placeLatitude),
-							Double.parseDouble(nearPlaces[i].placeLongitude));
-
-					// Drawing the marker corresponding to the i-th place
-					Marker m = addMarker(point, UNDEFINED_COLOR);
-
-					// Linkng i-th place and its marker id
-					nearPlacesReference.put(m.getId(), nearPlaces[i]);
-				}
-			}
-
-			// If a touched location is already saved
-			if (savedInstanceState.containsKey("location")) {
-
-				// Retrieving the touched location and setting in member
-				// variable
-				latLng = (LatLng) savedInstanceState.getParcelable("location");
-
-				// Drawing a marker at the touched location
-				addMarker(latLng, BitmapDescriptorFactory.HUE_GREEN);
-			}
-		}*/
-
-		// Map Click listener
-		googleMap.setOnMapClickListener(new OnMapClickListener() {
+		nearbyPlacesGoogleMap.setOnMapClickListener(new OnMapClickListener() {
 
 			@Override
 			public void onMapClick(LatLng point) {
 
-				latLng = point;
-
-				// Drawing a marker at the touched location
-				addMarker(latLng, BitmapDescriptorFactory.HUE_GREEN);
+				nearbyPlaceslatLng = point;
+				addMarker(nearbyPlaceslatLng, BitmapDescriptorFactory.HUE_GREEN);
 			}
 		});
 
-		// Marker click listener
-		googleMap.setOnMarkerClickListener(new OnMarkerClickListener() {
+		nearbyPlacesGoogleMap
+				.setOnMarkerClickListener(new OnMarkerClickListener() {
 
-			@Override
-			public boolean onMarkerClick(Marker marker) {
+					@Override
+					public boolean onMarkerClick(Marker marker) {
 
-				// If touched at User input location
-				if (!nearPlacesReference.containsKey(marker.getId()))
-					return false;
+						if (!nearPlacesReference.containsKey(marker.getId()))
+							return false;
 
-				Place place = nearPlacesReference.get(marker.getId());
+						Place place = nearPlacesReference.get(marker.getId());
 
-				DisplayMetrics dm = new DisplayMetrics();
+						DisplayMetrics dm = new DisplayMetrics();
 
-				WindowManager windowManager = (WindowManager) TabActivity.mainContext
-						.getSystemService(TabActivity.WINDOW_SERVICE);
+						WindowManager windowManager = (WindowManager) TabActivity.mainContext
+								.getSystemService(TabActivity.WINDOW_SERVICE);
 
-				Display display = windowManager.getDefaultDisplay();
+						Display display = windowManager.getDefaultDisplay();
 
-				display.getMetrics(dm);
+						display.getMetrics(dm);
 
-				PlaceDialogFragment dialogFragment = new PlaceDialogFragment(
-						place, dm);
+						PlaceDialogFragment dialogFragment = new PlaceDialogFragment(
+								place, dm);
 
-				FragmentManager fm = getFragmentManager();
+						FragmentManager fm = getFragmentManager();
 
-				FragmentTransaction fragmentTransaction = fm.beginTransaction();
+						FragmentTransaction fragmentTransaction = fm
+								.beginTransaction();
 
-				fragmentTransaction.add(dialogFragment, "TAG");
+						fragmentTransaction.add(dialogFragment, "TAG");
 
-				fragmentTransaction.commit();
+						fragmentTransaction.commit();
 
-				return false;
-			}
-		});
+						return false;
+					}
+				});
 
-		return root;
+		return nearbyPlacesRootView;
 
 	}
 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 
-		// Saving all the near by places objects
-		if (nearPlaces != null)
-			outState.putParcelableArray("places", nearPlaces);
+		if (nearbyPlaces != null)
+			outState.putParcelableArray("places", nearbyPlaces);
 
-		// Saving the touched location
-		if (latLng != null)
-			outState.putParcelable("location", latLng);
+		if (nearbyPlaceslatLng != null)
+			outState.putParcelable("location", nearbyPlaceslatLng);
 
 		super.onSaveInstanceState(outState);
 	}
 
+	@Override
+	protected void onPostCreate(Bundle savedInstanceState) {
+		super.onPostCreate(savedInstanceState);
+		nearbyPlacesDrawerToggle.syncState();
+	}
+
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		nearbyPlacesDrawerToggle.onConfigurationChanged(newConfig);
+	}
+
+	// ***** External Methods *****
+
 	public void toggleStyle() {
-		if (GoogleMap.MAP_TYPE_NORMAL == googleMap.getMapType()) {
-			googleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+		if (GoogleMap.MAP_TYPE_NORMAL == nearbyPlacesGoogleMap.getMapType()) {
+			nearbyPlacesGoogleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
 		} else {
-			googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+			nearbyPlacesGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 		}
 	}
 
 	public void clearMarkers() {
-		googleMap.clear();
-		markers.clear();
+		nearbyPlacesGoogleMap.clear();
+		nearbyPlacesMarkerList.clear();
 	}
 
 	public static Marker addMarker(LatLng latLng, float color) {
-		// Creating a marker
+
 		MarkerOptions markerOptions = new MarkerOptions();
 
-		// Setting the position for the marker
 		markerOptions.position(latLng);
 
 		if (color != UNDEFINED_COLOR)
 			markerOptions.icon(BitmapDescriptorFactory.defaultMarker(color));
 
-		// Placing a marker on the touched position
-		Marker m = googleMap.addMarker(markerOptions);
+		Marker m = nearbyPlacesGoogleMap.addMarker(markerOptions);
 
 		return m;
 	}
 
 	private void getNearbyPlaces(String type) {
 
-		googleMap.clear();
+		nearbyPlacesGoogleMap.clear();
 
-		if (latLng == null) {
+		if (nearbyPlaceslatLng == null) {
 			Toast.makeText(getSherlockActivity(), "No points on the map!",
 					Toast.LENGTH_LONG).show();
 		} else {
-			// PlacesParserTask.drawMarker(latLng,
-			// BitmapDescriptorFactory.HUE_GREEN);
 
 			StringBuilder sb = new StringBuilder(
 					"https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
-			sb.append("location=" + latLng.latitude + "," + latLng.longitude);
+			sb.append("location=" + nearbyPlaceslatLng.latitude + ","
+					+ nearbyPlaceslatLng.longitude);
 			sb.append("&radius=500000");
 			sb.append("&types=" + type);
 			sb.append("&sensor=true");
 			sb.append("&key=AIzaSyC-CiTPvezMf-xewmsVJZp8P8PcnWkSJow");
 
-			// Creating a new non-ui thread task to download Google place //
-			// jsondata
 			PlacesDownloadTask placesDownloadTask = new PlacesDownloadTask();
 
-			// Invokes the "doInBackground()" method of the class PlaceTask
 			placesDownloadTask.execute(sb.toString());
 
 		}
-	}
-
-	@Override
-	protected void onPostCreate(Bundle savedInstanceState) {
-		super.onPostCreate(savedInstanceState);
-		actbardrawertoggle.syncState();
-	}
-
-	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
-		super.onConfigurationChanged(newConfig);
-		actbardrawertoggle.onConfigurationChanged(newConfig);
 	}
 
 }

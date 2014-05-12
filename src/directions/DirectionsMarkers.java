@@ -11,13 +11,13 @@ public class DirectionsMarkers {
 	// Drawing Start and Stop locations
 	public static void drawStartStopMarkers() {
 
-		for (int i = 0; i < TravellingModeFragment.markerPoints.size(); i++) {
+		for (int i = 0; i < TravellingModeFragment.travellingModeMarkerLocations.size(); i++) {
 
 			// Creating MarkerOptions
 			MarkerOptions options = new MarkerOptions();
 
 			// Setting the position of the marker
-			options.position(TravellingModeFragment.markerPoints.get(i));
+			options.position(TravellingModeFragment.travellingModeMarkerLocations.get(i));
 
 			/**
 			 * For the start location, the color of marker is GREEN and for the
@@ -32,7 +32,7 @@ public class DirectionsMarkers {
 			}
 
 			// Add new marker to the Google Map Android API V2
-			TravellingModeFragment.googleMap.addMarker(options);
+			TravellingModeFragment.travellingModeGoogleMap.addMarker(options);
 		}
 	}
 

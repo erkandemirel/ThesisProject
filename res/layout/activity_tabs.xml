@@ -14,12 +14,12 @@
         android:layout_width="match_parent"
         android:layout_height="48dip" />
 
-    <viewpager.CustomViewPager
+    <viewpager.NavigationViewPager
         android:id="@+id/pager"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/tabs"
         tools:context=".TabActivity" >
-    </viewpager.CustomViewPager>
+    </viewpager.NavigationViewPager>
 
 </RelativeLayout>

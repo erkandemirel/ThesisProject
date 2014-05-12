@@ -18,7 +18,7 @@ public class Place implements Parcelable {
 
 	// Photos of the place
 	// Photo is a Parcelable class
-	Photo[] placePhoto = {};
+	public Photo[] placePhoto = {};
 
 	@Override
 	public int describeContents() {

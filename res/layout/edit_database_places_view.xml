@@ -40,7 +40,7 @@
             android:id="@+id/edit_database_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/add_database_button" />
+            android:text="@string/edit_database_button" />
 
         <Button
             android:id="@+id/cncl_database_button"

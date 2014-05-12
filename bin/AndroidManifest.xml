@@ -41,7 +41,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.example.navigation.DirectionsInputActivity"
+            android:name="com.example.navigation.AutoCompleteDirectionsActivity"
             android:label="@string/directions_input" >
         </activity>
 

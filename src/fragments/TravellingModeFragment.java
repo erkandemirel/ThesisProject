@@ -1,17 +1,15 @@
 package fragments;
 
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 import tools.TravellingModeSlidingMenuAdapter;
 import trafficparser.ParseTask;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.location.Location;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -32,10 +30,8 @@ import android.widget.ToggleButton;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
-import com.example.navigation.DirectionsInputActivity;
+import com.example.navigation.AutoCompleteDirectionsActivity;
 import com.example.navigation.R;
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
@@ -43,56 +39,42 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.Marker;
-import com.google.api.client.extensions.android.http.AndroidHttp;
-import com.google.api.client.http.GenericUrl;
-import com.google.api.client.http.HttpRequest;
-import com.google.api.client.http.HttpRequestFactory;
-import com.google.api.client.http.HttpRequestInitializer;
-import com.google.api.client.http.HttpResponse;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.JsonObjectParser;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.Key;
-import com.google.maps.android.PolyUtil;
-
 import directions.DirectionsDownloadTask;
+import directions.DirectionsFetcher;
 import directions.DirectionsMarkers;
 import directions.DirectionsParserTask;
 
 public class TravellingModeFragment extends SherlockMapFragment {
 
-	public static GoogleMap googleMap;
+	public static GoogleMap travellingModeGoogleMap;
 
-	private SupportMapFragment fragment;
+	private SupportMapFragment travellingModeFragment;
 
-	private List<Marker> markers = new ArrayList<Marker>();
-
-	public static ArrayList<LatLng> markerPoints;
+	public static ArrayList<LatLng> travellingModeMarkerLocations;
 
 	public static int travelling_mode;
 
-	private DrawerLayout drawlayout = null;
-	private ActionBarDrawerToggle actbardrawertoggle = null;
-	private ListView listview = null;
-	ToggleButton trafficButton;
+	private DrawerLayout travellingModeDrawerLayout = null;
+
+	private ActionBarDrawerToggle travellingModeDrawerToggle = null;
+
+	private ListView travellingModeListview = null;
+
+	private View travellingModeRootView;
+
+	private ToggleButton trafficAccidentButton;
 
 	private String[] travellingModeNames;
 
 	private int[] travellingModeIcons;
 
-	private static final HttpTransport HTTP_TRANSPORT = AndroidHttp
-			.newCompatibleTransport();
-	private static final JsonFactory JSON_FACTORY = new JacksonFactory();
+	public static Activity travellingModeActivity;
 
-	List<LatLng> latLngs;
+	private String bingServerAccidentUrl = "http://dev.virtualearth.net/REST/v1/Traffic/Incidents/";
+	private String bingAPIKey = "AoHoD_fdpQD73-OoTNnnsGzYu5ClXmVNAGr2t-M_wKbR8TWHqKrZR1X6GHI5pzWm";
+	private String bingServerCompleteUrl;
 
-	String bingUrl = "http://dev.virtualearth.net/REST/v1/Traffic/Incidents/";
-	String bingKey = "AoHoD_fdpQD73-OoTNnnsGzYu5ClXmVNAGr2t-M_wKbR8TWHqKrZR1X6GHI5pzWm";
-	String url2;
-
-	View root;
+	DirectionsDownloadTask directionsdownloadTask;
 
 	Handler handler = new Handler();
 	Random random = new Random();
@@ -103,23 +85,13 @@ public class TravellingModeFragment extends SherlockMapFragment {
 		}
 	};
 
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
-		if (resultCode == DirectionsInputActivity.RESULT_CODE) {
-			String from = data.getExtras().getString("from");
-			String to = data.getExtras().getString("to");
-			new DirectionsFetcher(from, to).execute();
-		}
-	}
-
 	public static TravellingModeFragment newInstance(int position, String title) {
-		TravellingModeFragment fragment = new TravellingModeFragment();
+		TravellingModeFragment travellingModeFragment = new TravellingModeFragment();
 		Bundle bundle = new Bundle();
 		bundle.putInt("position", position);
 		bundle.putString("title", title);
-		fragment.setArguments(bundle);
-		return fragment;
+		travellingModeFragment.setArguments(bundle);
+		return travellingModeFragment;
 	}
 
 	@Override
@@ -131,22 +103,39 @@ public class TravellingModeFragment extends SherlockMapFragment {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		if (item.getItemId() == R.id.travelling_clear_locations) {
-			clearMarkers();
-		} else if (item.getItemId() == R.id.travelling_toggle_style) {
-			toggleStyle();
-		} else if (item.getItemId() == R.id.travelling_autocomplete_text_menu_item) {
-			startActivityForResult(new Intent(getActivity(),
-					DirectionsInputActivity.class),
-					DirectionsInputActivity.RESULT_CODE);
-		}
 
-		if (item.getItemId() == android.R.id.home) {
-			if (drawlayout.isDrawerOpen(listview)) {
-				drawlayout.closeDrawer(listview);
+		switch (item.getItemId()) {
+		case R.id.travelling_normal_map:
+			travellingModeGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+			break;
+
+		case R.id.travelling_satellite_map:
+			travellingModeGoogleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+			break;
+
+		case R.id.travelling_terrain_map:
+			travellingModeGoogleMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+			break;
+
+		case R.id.travelling_hybrid_map:
+			travellingModeGoogleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+			break;
+
+		case R.id.travelling_clear_locations:
+			clearMarkers();
+			break;
+		case R.id.get_route:
+			startActivityForResult(new Intent(getActivity(),
+					AutoCompleteDirectionsActivity.class),
+					AutoCompleteDirectionsActivity.RESULT_CODE);
+			break;
+		case android.R.id.home:
+			if (travellingModeDrawerLayout.isDrawerOpen(travellingModeListview)) {
+				travellingModeDrawerLayout.closeDrawer(travellingModeListview);
 			} else {
-				drawlayout.openDrawer(listview);
+				travellingModeDrawerLayout.openDrawer(travellingModeListview);
 			}
+			break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -158,64 +147,66 @@ public class TravellingModeFragment extends SherlockMapFragment {
 
 		handler.postDelayed(runner, random.nextInt(2000));
 
-		if (root != null) {
+		if (travellingModeRootView != null) {
 
-			ViewGroup parent = (ViewGroup) root.getParent();
+			ViewGroup parent = (ViewGroup) travellingModeRootView.getParent();
 			if (parent != null)
 
-				parent.removeView(root);
+				parent.removeView(travellingModeRootView);
 
 		}
 
 		try {
 
-			root = inflater.inflate(R.layout.travelling_mode, container, false);
+			travellingModeRootView = inflater.inflate(R.layout.travelling_mode,
+					container, false);
 
 		} catch (InflateException e) {
-
-			/* map is already there, just return view as it is */
 
 		}
 
 		FragmentManager fragmentManager = getFragmentManager();
 
-		fragment = (SupportMapFragment) fragmentManager
+		travellingModeFragment = (SupportMapFragment) fragmentManager
 				.findFragmentById(R.id.map);
 
 		FragmentTransaction fragmentTransaction = fragmentManager
 				.beginTransaction();
 		fragmentTransaction.commit();
 
-		googleMap = fragment.getMap();
+		travellingModeGoogleMap = travellingModeFragment.getMap();
 
-		trafficButton = (ToggleButton) root.findViewById(R.id.traffic_button);
+		trafficAccidentButton = (ToggleButton) travellingModeRootView
+				.findViewById(R.id.traffic_button);
 
-		if (googleMap != null) {
-			googleMap.getUiSettings().setCompassEnabled(true);
-			googleMap.setMyLocationEnabled(true);
+		if (travellingModeGoogleMap != null) {
+			travellingModeGoogleMap.getUiSettings().setCompassEnabled(true);
+			travellingModeGoogleMap.setMyLocationEnabled(true);
 		}
 
-		markerPoints = new ArrayList<LatLng>();
+		travellingModeMarkerLocations = new ArrayList<LatLng>();
+		travellingModeActivity = getActivity();
 
 		travellingModeNames = new String[] { "Driving", "Walking", "Bicycling" };
 		travellingModeIcons = new int[] { R.drawable.car, R.drawable.walk,
 				R.drawable.bicycle };
 
-		drawlayout = (DrawerLayout) root
+		travellingModeDrawerLayout = (DrawerLayout) travellingModeRootView
 				.findViewById(R.id.travelling_mode_layout);
-		listview = (ListView) root
+		travellingModeListview = (ListView) travellingModeRootView
 				.findViewById(R.id.travelling_mode_sliding_menu);
-		drawlayout.setDrawerShadow(R.drawable.drawer_shadow,
+		travellingModeDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow,
 				GravityCompat.START);
-		drawlayout.setBackgroundColor(Color.WHITE);
+		travellingModeDrawerLayout.setBackgroundColor(Color.WHITE);
 
 		TravellingModeSlidingMenuAdapter menuAdapter = new TravellingModeSlidingMenuAdapter(
 				getSherlockActivity(), travellingModeNames, travellingModeIcons);
 
-		listview.setAdapter(menuAdapter);
+		travellingModeListview.setAdapter(menuAdapter);
 
-		actbardrawertoggle = new ActionBarDrawerToggle(getSherlockActivity(),
-				drawlayout, R.drawable.ic_drawer, R.string.drawer_open,
+		travellingModeDrawerToggle = new ActionBarDrawerToggle(
+				getSherlockActivity(), travellingModeDrawerLayout,
+				R.drawable.ic_drawer, R.string.drawer_open,
 				R.string.drawer_close) {
 			public void onDrawerClosed(View view) {
 				super.onDrawerClosed(view);
@@ -227,99 +218,100 @@ public class TravellingModeFragment extends SherlockMapFragment {
 			}
 
 		};
-		drawlayout.setDrawerListener(actbardrawertoggle);
+		travellingModeDrawerLayout
+				.setDrawerListener(travellingModeDrawerToggle);
 
-		listview.setOnItemClickListener(new OnItemClickListener() {
+		travellingModeListview
+				.setOnItemClickListener(new OnItemClickListener() {
 
-			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1,
-					int position, long arg3) {
+					@Override
+					public void onItemClick(AdapterView<?> arg0, View arg1,
+							int position, long arg3) {
 
-				if (position == 0) {
+						if (position == 0) {
 
-					travelling_mode = 1;
+							travelling_mode = 1;
 
-					if (markerPoints.size() >= 2) {
-						LatLng origin = markerPoints.get(0);
-						LatLng dest = markerPoints.get(1);
+							if (travellingModeMarkerLocations.size() >= 2) {
+								LatLng origin = travellingModeMarkerLocations
+										.get(0);
+								LatLng dest = travellingModeMarkerLocations
+										.get(1);
 
-						// Getting URL to the Google Directions API
-						String url = DirectionsParserTask.getDirectionsUrl(
-								origin, dest, travelling_mode);
+								String url = DirectionsParserTask
+										.getDirectionsUrl(origin, dest,
+												travelling_mode);
 
-						DirectionsDownloadTask directionsdownloadTask = new DirectionsDownloadTask();
+								directionsdownloadTask = new DirectionsDownloadTask();
+								directionsdownloadTask.execute(url);
 
-						// Start downloading json data from Google Directions
-						// API
-						directionsdownloadTask.execute(url);
-						drawlayout.closeDrawer(listview);
+								travellingModeDrawerLayout
+										.closeDrawer(travellingModeListview);
+							}
+						} else if (position == 1) {
+
+							travelling_mode = 2;
+
+							if (travellingModeMarkerLocations.size() >= 2) {
+								LatLng origin = travellingModeMarkerLocations
+										.get(0);
+								LatLng dest = travellingModeMarkerLocations
+										.get(1);
+
+								String url = DirectionsParserTask
+										.getDirectionsUrl(origin, dest,
+												travelling_mode);
+
+								directionsdownloadTask = new DirectionsDownloadTask();
+								directionsdownloadTask.execute(url);
+
+								travellingModeDrawerLayout
+										.closeDrawer(travellingModeListview);
+							}
+
+						} else if (position == 2) {
+
+							travelling_mode = 3;
+
+							if (travellingModeMarkerLocations.size() >= 2) {
+								LatLng origin = travellingModeMarkerLocations
+										.get(0);
+								LatLng dest = travellingModeMarkerLocations
+										.get(1);
+
+								String url = DirectionsParserTask
+										.getDirectionsUrl(origin, dest,
+												travelling_mode);
+
+								directionsdownloadTask = new DirectionsDownloadTask();
+								directionsdownloadTask.execute(url);
+
+								travellingModeDrawerLayout
+										.closeDrawer(travellingModeListview);
+							}
+
+						}
 					}
-				} else if (position == 1) {
+				});
 
-					travelling_mode = 2;
-
-					if (markerPoints.size() >= 2) {
-						LatLng origin = markerPoints.get(0);
-						LatLng dest = markerPoints.get(1);
-
-						// Getting URL to the Google Directions API
-						String url = DirectionsParserTask.getDirectionsUrl(
-								origin, dest, travelling_mode);
-
-						DirectionsDownloadTask directionsdownloadTask = new DirectionsDownloadTask();
-
-						// Start downloading json data from Google Directions
-						// API
-						directionsdownloadTask.execute(url);
-						drawlayout.closeDrawer(listview);
-					}
-
-				} else if (position == 2) {
-
-					travelling_mode = 3;
-
-					if (markerPoints.size() >= 2) {
-						LatLng origin = markerPoints.get(0);
-						LatLng dest = markerPoints.get(1);
-
-						// Getting URL to the Google Directions API
-						String url = DirectionsParserTask.getDirectionsUrl(
-								origin, dest, travelling_mode);
-
-						DirectionsDownloadTask directionsdownloadTask = new DirectionsDownloadTask();
-
-						// Start downloading json data from Google Directions
-						// API
-						directionsdownloadTask.execute(url);
-						drawlayout.closeDrawer(listview);
-					}
-
-				}
-			}
-		});
-
-		// Setting a click event handler for the map
-		googleMap.setOnMapClickListener(new OnMapClickListener() {
+		travellingModeGoogleMap.setOnMapClickListener(new OnMapClickListener() {
 
 			@Override
 			public void onMapClick(LatLng arg0) {
 
-				// Already two locations
-				if (markerPoints.size() > 1) {
-					markerPoints.clear();
-					googleMap.clear();
+				if (travellingModeMarkerLocations.size() > 1) {
+					travellingModeMarkerLocations.clear();
+					travellingModeGoogleMap.clear();
 				}
 
-				// Adding new item to the ArrayList
-				markerPoints.add(arg0);
+				travellingModeMarkerLocations.add(arg0);
 
-				// Draws Start and Stop markers on the Google Map
 				DirectionsMarkers.drawStartStopMarkers();
 
 			}
 		});
 
-		trafficButton
+		trafficAccidentButton
 				.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
 					@Override
@@ -327,29 +319,26 @@ public class TravellingModeFragment extends SherlockMapFragment {
 							boolean isChecked) {
 						if (isChecked) {
 
-							LatLngBounds bounds = googleMap.getProjection()
-									.getVisibleRegion().latLngBounds;
+							LatLngBounds bounds = travellingModeGoogleMap
+									.getProjection().getVisibleRegion().latLngBounds;
 							if (getAreaInTheScreen(bounds) < 5000000) {
-								new ParseTask(googleMap)
-										.execute(urlBuilder(bounds));
+								new ParseTask(travellingModeGoogleMap)
+										.execute(bingServerUrlBuilder(bounds));
 							} else {
-								googleMap.clear();
-								if (markerPoints.size() != 0) {
+								travellingModeGoogleMap.clear();
+								if (travellingModeMarkerLocations.size() != 0) {
 
-									LatLng origin = markerPoints.get(0);
-									LatLng dest = markerPoints.get(1);
+									LatLng origin = travellingModeMarkerLocations
+											.get(0);
+									LatLng dest = travellingModeMarkerLocations
+											.get(1);
 
 									DirectionsMarkers.drawStartStopMarkers();
 
-									// Getting URL to the Google Directions API
 									String url = DirectionsParserTask
 											.getDirectionsUrl(origin, dest, 1);
 
 									DirectionsDownloadTask directionsdownloadTask = new DirectionsDownloadTask();
-
-									// Start downloading json data from Google
-									// Directions
-									// API
 									directionsdownloadTask.execute(url);
 
 								} else {
@@ -359,23 +348,20 @@ public class TravellingModeFragment extends SherlockMapFragment {
 							}
 
 						} else {
-							googleMap.clear();
+							travellingModeGoogleMap.clear();
 
-							if (markerPoints.size() != 0) {
-								LatLng origin = markerPoints.get(0);
-								LatLng dest = markerPoints.get(1);
+							if (travellingModeMarkerLocations.size() != 0) {
+								LatLng origin = travellingModeMarkerLocations
+										.get(0);
+								LatLng dest = travellingModeMarkerLocations
+										.get(1);
 
 								DirectionsMarkers.drawStartStopMarkers();
 
-								// Getting URL to the Google Directions API
 								String url = DirectionsParserTask
 										.getDirectionsUrl(origin, dest, 1);
 
 								DirectionsDownloadTask directionsdownloadTask = new DirectionsDownloadTask();
-
-								// Start downloading json data from Google
-								// Directions
-								// API
 								directionsdownloadTask.execute(url);
 							}
 
@@ -383,62 +369,93 @@ public class TravellingModeFragment extends SherlockMapFragment {
 					}
 				});
 
-		googleMap.setOnCameraChangeListener(new OnCameraChangeListener() {
-			@Override
-			public void onCameraChange(CameraPosition position) {
+		travellingModeGoogleMap
+				.setOnCameraChangeListener(new OnCameraChangeListener() {
+					@Override
+					public void onCameraChange(CameraPosition position) {
 
-				if (trafficButton.getText().equals("Traffic On")) {
-					LatLngBounds bounds = googleMap.getProjection()
-							.getVisibleRegion().latLngBounds;
-					if (getAreaInTheScreen(bounds) < 5000000) {
-						new ParseTask(googleMap).execute(urlBuilder(bounds));
-					} else {
-						googleMap.clear();
+						if (trafficAccidentButton.getText()
+								.equals("Traffic On")) {
+							LatLngBounds bounds = travellingModeGoogleMap
+									.getProjection().getVisibleRegion().latLngBounds;
+							if (getAreaInTheScreen(bounds) < 5000000) {
 
-						if (markerPoints.size() != 0) {
-							LatLng origin = markerPoints.get(0);
-							LatLng dest = markerPoints.get(1);
+								new ParseTask(travellingModeGoogleMap)
+										.execute(bingServerUrlBuilder(bounds));
+							} else {
+								travellingModeGoogleMap.clear();
 
-							DirectionsMarkers.drawStartStopMarkers();
+								if (travellingModeMarkerLocations.size() != 0) {
+									LatLng origin = travellingModeMarkerLocations
+											.get(0);
+									LatLng dest = travellingModeMarkerLocations
+											.get(1);
 
-							// Getting URL to the Google Directions API
-							String url = DirectionsParserTask.getDirectionsUrl(
-									origin, dest, 1);
+									DirectionsMarkers.drawStartStopMarkers();
 
-							DirectionsDownloadTask directionsdownloadTask = new DirectionsDownloadTask();
+									String url = DirectionsParserTask
+											.getDirectionsUrl(origin, dest, 1);
 
-							// Start downloading json data from Google
-							// Directions
-							// API
-							directionsdownloadTask.execute(url);
+									DirectionsDownloadTask directionsdownloadTask = new DirectionsDownloadTask();
+									directionsdownloadTask.execute(url);
+
+								}
+							}
+						} else {
+
 						}
+
 					}
-				} else {
 
-				}
+				});
 
-			}
-
-		});
-
-		return root;
+		return travellingModeRootView;
 
 	}
 
-	private String urlBuilder(LatLngBounds bounds) {
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if (resultCode == AutoCompleteDirectionsActivity.RESULT_CODE) {
+			String from = data.getExtras().getString("from");
+			String to = data.getExtras().getString("to");
+			new DirectionsFetcher(from, to).execute();
+		}
+	}
+
+	@Override
+	protected void onPostCreate(Bundle savedInstanceState) {
+
+		super.onPostCreate(savedInstanceState);
+		travellingModeDrawerToggle.syncState();
+	}
+
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+
+		super.onConfigurationChanged(newConfig);
+		travellingModeDrawerToggle.onConfigurationChanged(newConfig);
+	}
+
+	// ****** external methods ******
+
+	private String bingServerUrlBuilder(LatLngBounds bounds) {
+
 		double northLat = bounds.northeast.latitude;
 		double northLong = bounds.northeast.longitude;
 		double southLat = bounds.southwest.latitude;
 		double southLong = bounds.southwest.longitude;
 
-		url2 = bingUrl + String.valueOf(southLat) + ","
-				+ String.valueOf(southLong) + "," + String.valueOf(northLat)
-				+ "," + String.valueOf(northLong) + "?key=" + bingKey;
-		return url2;
+		bingServerCompleteUrl = bingServerAccidentUrl
+				+ String.valueOf(southLat) + "," + String.valueOf(southLong)
+				+ "," + String.valueOf(northLat) + ","
+				+ String.valueOf(northLong) + "?key=" + bingAPIKey;
+		return bingServerCompleteUrl;
 
 	}
 
 	private float getAreaInTheScreen(LatLngBounds bounds) {
+
 		double northLat = bounds.northeast.latitude;
 		double northLong = bounds.northeast.longitude;
 		double southLat = bounds.southwest.latitude;
@@ -462,111 +479,40 @@ public class TravellingModeFragment extends SherlockMapFragment {
 		return area;
 	}
 
-	public void toggleStyle() {
-		if (GoogleMap.MAP_TYPE_NORMAL == googleMap.getMapType()) {
-			googleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-		} else {
-			googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-		}
-	}
+	public void changeMapType() {
 
-	public void clearMarkers() {
-		googleMap.clear();
-		markers.clear();
-	}
+		if (GoogleMap.MAP_TYPE_NORMAL == travellingModeGoogleMap.getMapType()) {
 
-	@Override
-	protected void onPostCreate(Bundle savedInstanceState) {
-		super.onPostCreate(savedInstanceState);
-		actbardrawertoggle.syncState();
-	}
+			for (int i = 0; i < 3; i++) {
+				switch (i) {
+				case 0:
+					travellingModeGoogleMap
+							.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+					break;
+				case 1:
+					travellingModeGoogleMap
+							.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+					break;
+				case 2:
+					travellingModeGoogleMap
+							.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+					break;
+				case 3:
 
-	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
-		super.onConfigurationChanged(newConfig);
-		actbardrawertoggle.onConfigurationChanged(newConfig);
-	}
+					travellingModeGoogleMap
+							.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
-	private class DirectionsFetcher extends AsyncTask<URL, Integer, Void> {
+				default:
+					break;
+				}
 
-		private String origin;
-		private String destination;
-
-		public DirectionsFetcher(String origin, String destination) {
-			this.origin = origin;
-			this.destination = destination;
-		}
-
-		@Override
-		protected void onPreExecute() {
-			super.onPreExecute();
-			clearMarkers();
-			getActivity().setProgressBarIndeterminateVisibility(Boolean.FALSE);
-
-		}
-
-		protected Void doInBackground(URL... urls) {
-			try {
-				HttpRequestFactory requestFactory = HTTP_TRANSPORT
-						.createRequestFactory(new HttpRequestInitializer() {
-							@Override
-							public void initialize(HttpRequest request) {
-								request.setParser(new JsonObjectParser(
-										JSON_FACTORY));
-							}
-						});
-
-				GenericUrl url = new GenericUrl(
-						"http://maps.googleapis.com/maps/api/directions/json");
-				url.put("origin", origin);
-				url.put("destination", destination);
-				url.put("sensor", false);
-
-				HttpRequest request = requestFactory.buildGetRequest(url);
-				HttpResponse httpResponse = request.execute();
-				DirectionsResult directionsResult = httpResponse
-						.parseAs(DirectionsResult.class);
-
-				String encodedPoints = directionsResult.routes.get(0).overviewPolyLine.points;
-				latLngs = PolyUtil.decode(encodedPoints);
-			} catch (Exception ex) {
-				ex.printStackTrace();
 			}
-			return null;
-
-		}
-
-		protected void onPostExecute(Void result) {
-			CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(
-					latLngs.get(0), 7);
-			googleMap.animateCamera(cameraUpdate);
-			String url = DirectionsParserTask.getDirectionsUrl(latLngs.get(0),
-					latLngs.get(latLngs.size() - 1), travelling_mode);
-
-			DirectionsDownloadTask directionsdownloadTask = new DirectionsDownloadTask();
-
-			directionsdownloadTask.execute(url);
-
 		}
 	}
 
-	public static class DirectionsResult {
+	public static void clearMarkers() {
 
-		@Key("routes")
-		public List<Route> routes;
-
-	}
-
-	public static class Route {
-		@Key("overview_polyline")
-		public OverviewPolyLine overviewPolyLine;
-
-	}
-
-	public static class OverviewPolyLine {
-		@Key("points")
-		public String points;
-
+		travellingModeGoogleMap.clear();
 	}
 
 }
