@@ -1,9 +1,7 @@
 package fragments;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Random;
 
 import places.Place;
@@ -15,7 +13,6 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.example.navigation.R;
 import com.example.navigation.TabActivity;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
@@ -27,8 +24,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import android.content.res.Configuration;
 import android.graphics.Color;
-import android.location.Address;
-import android.location.Geocoder;
 import android.os.Bundle;
 import android.os.Handler;
 
@@ -58,8 +53,6 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 
 	private SupportMapFragment nearbyPlacesfragment;
 
-	private Geocoder geocoder;
-
 	private ArrayList<Marker> nearbyPlacesMarkerList;
 
 	private static final float UNDEFINED_COLOR = -1;
@@ -88,10 +81,6 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 	private ActionBarDrawerToggle nearbyPlacesDrawerToggle = null;
 
 	private View nearbyPlacesRootView;
-
-	String myLocation = "Mersin,Turkey";
-	List<Address> addresses;
-	MarkerOptions miami;
 
 	Handler handler = new Handler();
 	Random random = new Random();
@@ -192,42 +181,15 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 			nearbyPlacesGoogleMap.setMyLocationEnabled(true);
 		}
 
-		geocoder = new Geocoder(TabActivity.mainContext);
 		nearbyPlacesMarkerList = new ArrayList<Marker>();
-
-		double latitude = 0;
-		double longitude = 0;
-
-		while (addresses == null) {
-			try {
-				addresses = geocoder.getFromLocationName(myLocation, 1);
-
-			} catch (IOException e) {
-
-				e.printStackTrace();
-			}
-		}
-		Address address = addresses.get(0);
-		if (addresses.size() > 0) {
-			latitude = address.getLatitude();
-			longitude = address.getLongitude();
-		}
-		LatLng City = new LatLng(latitude, longitude);
-
-		miami = new MarkerOptions().position(City).title("Miami");
-
-		nearbyPlacesGoogleMap.addMarker(miami);
-
-		nearbyPlacesGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-				City, 15));
 
 		nearPlacesReference = new HashMap<String, Place>();
 
 		nearbyPlaceNames = new String[] { "Airport", "Bank", "Bus Station",
 				"Hospital", "Mosque", "Restaurant" };
-		nearbyPlaceIcons = new int[] { R.drawable.airport,
-				R.drawable.bank, R.drawable.bus,
-				R.drawable.hospital, R.drawable.mosque, R.drawable.restaurant };
+		nearbyPlaceIcons = new int[] { R.drawable.airport, R.drawable.bank,
+				R.drawable.bus, R.drawable.hospital, R.drawable.mosque,
+				R.drawable.restaurant };
 		nearbyPlacesDrawerLayout = (DrawerLayout) nearbyPlacesRootView
 				.findViewById(R.id.drawer_layout);
 

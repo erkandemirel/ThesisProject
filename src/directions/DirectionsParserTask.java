@@ -104,23 +104,24 @@ public class DirectionsParserTask extends
 
 					// Adding all the points in the route to LineOptions
 					lineOptions.addAll(points);
-					lineOptions.width(2);
+					lineOptions.width(5);
+					lineOptions.color(Color.parseColor("#05cdf8"));
 
 					if (PlaceDialogFragment.travelling_mode == 0) {
 						// Changing the color polyline according to the mode
 						if (TravellingModeFragment.travelling_mode == 1)
-							lineOptions.color(Color.RED);
+							lineOptions.color(Color.parseColor("#05cdf8"));
 						else if (TravellingModeFragment.travelling_mode == 2)
-							lineOptions.color(Color.GREEN);
+							lineOptions.color(Color.parseColor("#f603b9"));
 						else if (TravellingModeFragment.travelling_mode == 3)
-							lineOptions.color(Color.BLUE);
+							lineOptions.color(Color.parseColor("#5203f8"));
+						TravellingModeFragment.progressDialog.dismiss();
 
-						// Drawing polyline in the Google Map for the i-th route
 						TravellingModeFragment.travellingModeGoogleMap
 								.addPolyline(lineOptions);
+
 					} else if (PlaceDialogFragment.travelling_mode == 1) {
 
-						lineOptions.color(Color.BLUE);
 						FindNearbyPlacesFragment.nearbyPlacesGoogleMap
 								.addPolyline(lineOptions);
 					}
@@ -182,36 +183,23 @@ public class DirectionsParserTask extends
 	}
 
 	// finds coordinates between two coordinates//////////////////
-		boolean liesOnSegment(LatLng a, LatLng b, LatLng c) {
+	boolean liesOnSegment(LatLng a, LatLng b, LatLng c) {
 
-			double crossProduct = (c.longitude - b.longitude)
-					* (b.latitude - a.latitude) - (c.latitude - b.latitude)
-					* (b.longitude - a.longitude);
-			double dotProduct = (c.latitude - a.latitude)
-					* (c.latitude - b.latitude) + (c.longitude - a.longitude)
-					* (c.longitude - b.longitude);
-			double squaredlengthba = (b.latitude - a.latitude)
-					* (b.latitude - a.latitude) + (b.longitude - a.longitude)
-					* (b.longitude - a.longitude);
+		double crossProduct = (c.longitude - b.longitude)
+				* (b.latitude - a.latitude) - (c.latitude - b.latitude)
+				* (b.longitude - a.longitude);
+		double dotProduct = (c.latitude - a.latitude)
+				* (c.latitude - b.latitude) + (c.longitude - a.longitude)
+				* (c.longitude - b.longitude);
+		double squaredlengthba = (b.latitude - a.latitude)
+				* (b.latitude - a.latitude) + (b.longitude - a.longitude)
+				* (b.longitude - a.longitude);
 
-			/*double distance = Math.abs(((b.longitude - a.longitude) * c.latitude)
-					+ ((a.latitude - b.latitude) * c.longitude) - b.latitude
-					* b.longitude + a.longitude * b.latitude - a.latitude
-					* b.longitude + b.latitude * b.longitude)
-					/ Math.sqrt((b.longitude - a.longitude)
-							* (b.longitude - a.longitude)
-							+ (a.latitude - b.latitude) * (a.latitude - b.latitude));
-
-			if(distance==0)
-				return true;
-			*/ 
-
-
-			if (Math.abs(crossProduct) < Math.E && dotProduct > 0
-					&& dotProduct < squaredlengthba)
-				return true;
-			else
-				return false;
-		}
+		if (Math.abs(crossProduct) < Math.E && dotProduct > 0
+				&& dotProduct < squaredlengthba)
+			return true;
+		else
+			return false;
+	}
 
 }

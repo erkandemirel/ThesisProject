@@ -22,7 +22,7 @@ public class DirectionsDownloadTask extends AsyncTask<String, Void, String> {
 
 	@Override
 	protected void onPostExecute(String result) {
-		// TODO Auto-generated method stub
+		
 		super.onPostExecute(result);
 
 		DirectionsParserTask directionsParserTask = new DirectionsParserTask();

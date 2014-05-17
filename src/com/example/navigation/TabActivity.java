@@ -9,8 +9,8 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
-
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+
 import com.astuetz.PagerSlidingTabStrip;
 
 import fragments.BookmarksFragment;
@@ -33,10 +33,9 @@ public class TabActivity extends SherlockFragmentActivity {
 
 		super.onCreate(savedInstanceState);
 
-		mainContext = getApplicationContext();
-
-
 		setContentView(R.layout.activity_tabs);
+
+		mainContext = getBaseContext();
 
 		getSupportActionBar().setHomeButtonEnabled(true);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -65,7 +64,7 @@ public class TabActivity extends SherlockFragmentActivity {
 
 	public class TabPagerAdapter extends FragmentPagerAdapter {
 
-		private final String[] TITLES = { "Find Nearby Places",
+		private final String[] TITLES = { "Nearby Places",
 				"Travelling Mode", "Bookmarks" };
 
 		public TabPagerAdapter(FragmentManager fm) {

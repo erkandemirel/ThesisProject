@@ -32,6 +32,8 @@ public class DirectionsFetcher extends AsyncTask<URL, Integer, Void> {
 	private static final JsonFactory JSON_FACTORY = new JacksonFactory();
 
 	private List<LatLng> latLngs;
+	
+	DirectionsDownloadTask directionsdownloadTask;
 
 	public DirectionsFetcher(String origin, String destination) {
 		this.origin = origin;
@@ -86,7 +88,7 @@ public class DirectionsFetcher extends AsyncTask<URL, Integer, Void> {
 				latLngs.get(latLngs.size() - 1),
 				TravellingModeFragment.travelling_mode);
 
-		DirectionsDownloadTask directionsdownloadTask = new DirectionsDownloadTask();
+		directionsdownloadTask = new DirectionsDownloadTask();
 
 		directionsdownloadTask.execute(url);
 

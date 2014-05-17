@@ -14,8 +14,9 @@ import android.widget.Toast;
 public class AutoCompleteDirectionsActivity extends FragmentActivity {
 
 	public static final int RESULT_CODE = 123;
-	private AutoCompleteTextView from;
-	private AutoCompleteTextView to;
+	private AutoCompleteTextView from = null;
+	private AutoCompleteTextView to = null;
+	public static int travelling_mode;
 
 	@Override
 	protected void onCreate(Bundle arg0) {
@@ -36,26 +37,28 @@ public class AutoCompleteDirectionsActivity extends FragmentActivity {
 
 			@Override
 			public void onClick(View v) {
-				Intent data = new Intent();
 
-				if (to.getText().toString() != null || from.getText().toString() !=null) {
+				if (!to.getText().toString().equals("")
+						&& !from.getText().toString().equals("")) {
+
+					Intent data = new Intent();
 					data.putExtra("from", from.getText().toString());
-					System.out.println(from.getText().toString());
+					
 					data.putExtra("to", to.getText().toString());
-					System.out.println(to.getText().toString());
+					
+					travelling_mode=4;
+					
 					AutoCompleteDirectionsActivity.this.setResult(RESULT_CODE,
 							data);
 					AutoCompleteDirectionsActivity.this.finish();
 				} else {
 					Toast.makeText(TabActivity.mainContext,
-							"Please, Enter The Destiantion Location.",
+							"Please, Enter The Destiantion Location",
 							Toast.LENGTH_LONG).show();
 				}
 
 			}
 		});
-
-		
 
 	}
 

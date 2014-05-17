@@ -69,13 +69,10 @@ public class PlaceDialogFragment extends DialogFragment {
 			Bundle savedInstanceState) {
 		View v = inflater.inflate(R.layout.places_photo_view, null);
 
-		// Getting reference to ViewFlipper
 		placeFlipper = (ViewFlipper) v.findViewById(R.id.flipper);
 
-		// Getting reference to TextView to display photo count
 		photoCountText = (TextView) v.findViewById(R.id.tv_photos_count);
 
-		// Getting reference to TextView to display place vicinity
 		placeVicinityText = (TextView) v.findViewById(R.id.tv_vicinity);
 
 		addButton = (Button) v.findViewById(R.id.place_add_database);
@@ -151,6 +148,8 @@ public class PlaceDialogFragment extends DialogFragment {
 					DirectionsDownloadTask directionsdownloadTask = new DirectionsDownloadTask();
 
 					directionsdownloadTask.execute(url);
+
+					PlaceDialogFragment.this.dismiss();
 				} else {
 
 					gps.showSettingsAlert();
@@ -161,19 +160,14 @@ public class PlaceDialogFragment extends DialogFragment {
 
 		if (placeObject != null) {
 
-			// Setting the title for the Dialog Fragment
 			getDialog().setTitle(placeObject.placeName);
 
-			// Array of references of the photos
 			Photo[] photos = placeObject.placePhoto;
 
-			// Setting Photos count
 			photoCountText.setText("Photos available : " + photos.length);
 
-			// Setting the vicinity of the place
 			placeVicinityText.setText(placeObject.vicinity);
 
-			// Creating an array of ImageDownloadTask to download photos
 			ImageDownloadTask[] imageDownloadTask = new ImageDownloadTask[photos.length];
 
 			int width = (int) (metrics.widthPixels * 3) / 4;
@@ -187,18 +181,15 @@ public class PlaceDialogFragment extends DialogFragment {
 			url = url + "&" + key + "&" + sensor + "&" + maxWidth + "&"
 					+ maxHeight;
 
-			// Traversing through all the photoreferences
 			for (int i = 0; i < photos.length; i++) {
-				// Creating a task to download i-th photo
+
 				imageDownloadTask[i] = new ImageDownloadTask();
 
 				String photoReference = "photoreference="
 						+ photos[i].photoReference;
 
-				// URL for downloading the photo from Google Services
 				url = url + "&" + photoReference;
 
-				// Downloading i-th photo from the above url
 				imageDownloadTask[i].execute(url);
 			}
 		}
@@ -212,17 +203,13 @@ public class PlaceDialogFragment extends DialogFragment {
 		try {
 			URL url = new URL(strUrl);
 
-			/** Creating an http connection to communcate with url */
 			HttpURLConnection urlConnection = (HttpURLConnection) url
 					.openConnection();
 
-			/** Connecting to url */
 			urlConnection.connect();
 
-			/** Reading data from url */
 			iStream = urlConnection.getInputStream();
 
-			/** Creating a bitmap from the stream returned from the url */
 			bitmap = BitmapFactory.decodeStream(iStream);
 
 		} catch (Exception e) {
@@ -239,7 +226,7 @@ public class PlaceDialogFragment extends DialogFragment {
 		@Override
 		protected Bitmap doInBackground(String... url) {
 			try {
-				// Starting image download
+
 				bitmap = downloadImage(url[0]);
 			} catch (Exception e) {
 				Log.d("Background Task", e.toString());
@@ -249,13 +236,11 @@ public class PlaceDialogFragment extends DialogFragment {
 
 		@Override
 		protected void onPostExecute(Bitmap result) {
-			// Creating an instance of ImageView to display the downloaded image
+
 			ImageView iView = new ImageView(getActivity().getBaseContext());
 
-			// Setting the downloaded image in ImageView
 			iView.setImageBitmap(result);
 
-			// Adding the ImageView to ViewFlipper
 			placeFlipper.addView(iView);
 
 		}

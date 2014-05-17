@@ -15,7 +15,7 @@
             android:id="@+id/bookmarksTitleView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#0d5405"
+            android:textColor="#4bc106"
             android:textSize="20dip"
             android:textStyle="italic" />
 
@@ -24,7 +24,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingLeft="10dip"
-            android:textColor="#e35f08"
+            android:textColor="#f8a80e"
             android:textSize="10dip" />
     </LinearLayout>
 
