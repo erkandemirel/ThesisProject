@@ -1,6 +1,7 @@
 package directions;
 
 
+import com.example.navigation.R;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -25,10 +26,10 @@ public class DirectionsMarkers {
 			 */
 			if (i == 0) {
 				options.icon(BitmapDescriptorFactory
-						.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+						.fromResource(R.drawable.marker_icon));
 			} else if (i == 1) {
 				options.icon(BitmapDescriptorFactory
-						.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+						.fromResource(R.drawable.marker_icon2));
 			}
 
 			// Add new marker to the Google Map Android API V2

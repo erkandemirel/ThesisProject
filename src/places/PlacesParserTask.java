@@ -2,6 +2,7 @@ package places;
 
 import org.json.JSONObject;
 
+import com.example.navigation.R;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -13,9 +14,6 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 public class PlacesParserTask extends AsyncTask<String, Integer, Place[]> {
-
-	// Specifies the drawMarker() to draw the marker with default color
-	private static final float UNDEFINED_COLOR = -1;
 
 	JSONObject jObject;
 
@@ -45,38 +43,46 @@ public class PlacesParserTask extends AsyncTask<String, Integer, Place[]> {
 		for (int i = 0; i < result.length; i++) {
 			Place place = result[i];
 
-			// Getting latitude of the place
 			double lat = Double.parseDouble(place.placeLatitude);
 
-			// Getting longitude of the place
 			double lng = Double.parseDouble(place.placeLongitude);
 
 			LatLng latLng = new LatLng(lat, lng);
 
-			Marker m = drawMarker(latLng, UNDEFINED_COLOR);
+			Marker m = drawMarker(latLng);
 
-			// Adding place reference to HashMap with marker id as HashMap
-			// key
-			// to get its reference in infowindow click event listener
 			FindNearbyPlacesFragment.nearPlacesReference.put(m.getId(), place);
 		}
 	}
 
-	// Drawing marker at latLng with color
+	public static Marker drawMarker(LatLng latLng) {
 
-	public static Marker drawMarker(LatLng latLng, float color) {
-
-		// Creating a marker
 		MarkerOptions markerOptions = new MarkerOptions();
 
-		// Setting the position for the marker
 		markerOptions.position(latLng);
 
-		if (color != UNDEFINED_COLOR)
-			markerOptions.icon(BitmapDescriptorFactory.defaultMarker(color));
+		if (FindNearbyPlacesFragment.placeType.equals("airport")) {
+			markerOptions.icon(BitmapDescriptorFactory
+					.fromResource(R.drawable.airport_marker));
+		} else if (FindNearbyPlacesFragment.placeType.equals("bank")) {
+			markerOptions.icon(BitmapDescriptorFactory
+					.fromResource(R.drawable.bank_marker));
+		} else if (FindNearbyPlacesFragment.placeType.equals("bus_station")) {
+			markerOptions.icon(BitmapDescriptorFactory
+					.fromResource(R.drawable.bus_marker));
+		} else if (FindNearbyPlacesFragment.placeType.equals("hospital")) {
+			markerOptions.icon(BitmapDescriptorFactory
+					.fromResource(R.drawable.hospital_marker));
+		} else if (FindNearbyPlacesFragment.placeType.equals("mosque")) {
+			markerOptions.icon(BitmapDescriptorFactory
+					.fromResource(R.drawable.mosque_marker));
+		} else if (FindNearbyPlacesFragment.placeType.equals("restaurant")) {
+			markerOptions.icon(BitmapDescriptorFactory
+					.fromResource(R.drawable.restaurant_marker));
+		}
 
-		// Placing a marker on the touched position
-		Marker m = FindNearbyPlacesFragment.nearbyPlacesGoogleMap.addMarker(markerOptions);
+		Marker m = FindNearbyPlacesFragment.nearbyPlacesGoogleMap
+				.addMarker(markerOptions);
 
 		return m;
 	}

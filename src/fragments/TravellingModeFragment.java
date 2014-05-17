@@ -34,7 +34,6 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.example.navigation.AutoCompleteDirectionsActivity;
 import com.example.navigation.R;
-import com.example.navigation.TabActivity;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
@@ -78,8 +77,8 @@ public class TravellingModeFragment extends SherlockMapFragment {
 	private String bingServerCompleteUrl;
 
 	DirectionsDownloadTask directionsdownloadTask;
-	
-	public static ProgressDialog progressDialog = new ProgressDialog(TabActivity.mainContext);
+
+	public static ProgressDialog progressDialog;
 
 	Handler handler = new Handler();
 	Random random = new Random();
@@ -242,20 +241,29 @@ public class TravellingModeFragment extends SherlockMapFragment {
 									"No points on the map!", Toast.LENGTH_LONG)
 									.show();
 
-						} else {
+						} else if(travellingModeMarkerLocations.size()>=2) {
 
 							if (position == 0) {
+								progressDialog = new ProgressDialog(
+										getSherlockActivity());
 
-								progressDialog.setMessage("Retrieving all currently airing anime. Please wait.");
+								progressDialog.setMessage("Loading...");
 								progressDialog.setCancelable(false);
-								progressDialog.show();  
+								progressDialog.show();
+
 								travelling_mode = 1;
+								AutoCompleteDirectionsActivity.travelling_mode=0;
 
 								if (travellingModeMarkerLocations.size() >= 2) {
 									LatLng origin = travellingModeMarkerLocations
 											.get(0);
+									
+									
+									
 									LatLng dest = travellingModeMarkerLocations
 											.get(1);
+									
+								
 
 									String url = DirectionsParserTask
 											.getDirectionsUrl(origin, dest,
@@ -263,13 +271,22 @@ public class TravellingModeFragment extends SherlockMapFragment {
 
 									directionsdownloadTask = new DirectionsDownloadTask();
 									directionsdownloadTask.execute(url);
+									
 
 									travellingModeDrawerLayout
 											.closeDrawer(travellingModeListview);
 								}
 							} else if (position == 1) {
 
+								progressDialog = new ProgressDialog(
+										getSherlockActivity());
+
+								progressDialog.setMessage("Loading...");
+								progressDialog.setCancelable(false);
+								progressDialog.show();
+
 								travelling_mode = 2;
+								AutoCompleteDirectionsActivity.travelling_mode=0;
 
 								if (travellingModeMarkerLocations.size() >= 2) {
 									LatLng origin = travellingModeMarkerLocations
@@ -290,7 +307,15 @@ public class TravellingModeFragment extends SherlockMapFragment {
 
 							} else if (position == 2) {
 
+								progressDialog = new ProgressDialog(
+										getSherlockActivity());
+
+								progressDialog.setMessage("Loading...");
+								progressDialog.setCancelable(false);
+								progressDialog.show();
+
 								travelling_mode = 3;
+								AutoCompleteDirectionsActivity.travelling_mode=0;
 
 								if (travellingModeMarkerLocations.size() >= 2) {
 									LatLng origin = travellingModeMarkerLocations
@@ -347,7 +372,9 @@ public class TravellingModeFragment extends SherlockMapFragment {
 										.execute(bingServerUrlBuilder(bounds));
 							} else {
 								travellingModeGoogleMap.clear();
-								if (travellingModeMarkerLocations.size() != 0) {
+
+								if (travellingModeMarkerLocations.size() != 0
+										&& travellingModeMarkerLocations.size() != 1) {
 
 									LatLng origin = travellingModeMarkerLocations
 											.get(0);
@@ -362,6 +389,9 @@ public class TravellingModeFragment extends SherlockMapFragment {
 									DirectionsDownloadTask directionsdownloadTask = new DirectionsDownloadTask();
 									directionsdownloadTask.execute(url);
 
+								} else if (travellingModeMarkerLocations.size() == 1) {
+
+									DirectionsMarkers.drawStartStopMarkers();
 								} else {
 
 								}
@@ -371,7 +401,8 @@ public class TravellingModeFragment extends SherlockMapFragment {
 						} else {
 							travellingModeGoogleMap.clear();
 
-							if (travellingModeMarkerLocations.size() != 0) {
+							if (travellingModeMarkerLocations.size() != 0
+									&& travellingModeMarkerLocations.size() != 1) {
 								LatLng origin = travellingModeMarkerLocations
 										.get(0);
 								LatLng dest = travellingModeMarkerLocations
@@ -384,6 +415,8 @@ public class TravellingModeFragment extends SherlockMapFragment {
 
 								DirectionsDownloadTask directionsdownloadTask = new DirectionsDownloadTask();
 								directionsdownloadTask.execute(url);
+							} else if (travellingModeMarkerLocations.size() != 1) {
+								DirectionsMarkers.drawStartStopMarkers();
 							}
 
 						}
@@ -395,8 +428,8 @@ public class TravellingModeFragment extends SherlockMapFragment {
 					@Override
 					public void onCameraChange(CameraPosition position) {
 
-						if (trafficAccidentButton.getText()
-								.equals("Traffic On")) {
+						if (trafficAccidentButton.getText().equals(
+								"Accidents On")) {
 							LatLngBounds bounds = travellingModeGoogleMap
 									.getProjection().getVisibleRegion().latLngBounds;
 							if (getAreaInTheScreen(bounds) < 5000000) {
@@ -438,6 +471,12 @@ public class TravellingModeFragment extends SherlockMapFragment {
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (resultCode == AutoCompleteDirectionsActivity.RESULT_CODE) {
+			progressDialog = new ProgressDialog(
+					getSherlockActivity());
+			progressDialog.setMessage("Loading...");
+			progressDialog.setCancelable(false);
+			progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+			progressDialog.show();
 			String from = data.getExtras().getString("from");
 			String to = data.getExtras().getString("to");
 
@@ -537,6 +576,7 @@ public class TravellingModeFragment extends SherlockMapFragment {
 
 		travellingModeGoogleMap.clear();
 		travellingModeMarkerLocations.clear();
+
 	}
 
 }

@@ -9,6 +9,7 @@ import database.BookmarksItem;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,11 +20,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class BookmarksArrayAdapter extends ArrayAdapter<BookmarksItem> {
-
+	
+	public static int checkNumber=0;
 	int resource;
 	Context context;
 	List<BookmarksItem> bookmarksItemList;
 	private SparseBooleanArray mSelectedItemsIds;
+	Bundle bundle;
 
 	public BookmarksArrayAdapter(Context context, int resource,
 			List<BookmarksItem> bookmarksItemList) {
@@ -81,6 +84,8 @@ public class BookmarksArrayAdapter extends ArrayAdapter<BookmarksItem> {
 
 			@Override
 			public void onClick(View v) {
+				checkNumber=1;
+				bundle.putString("address", bookmarksItemAddress);
 				Intent bookmarksToDirectionActivityIntent = new Intent(context,
 						AutoCompleteDirectionsActivity.class);
 				bookmarksToDirectionActivityIntent.putExtra("bookmarksAddress",
@@ -93,6 +98,10 @@ public class BookmarksArrayAdapter extends ArrayAdapter<BookmarksItem> {
 		return bookmarksItemView;
 
 	}
+	
+	
+	
+	// **** External Methods ****
 
 	public SparseBooleanArray getSelectedIds() {
 		return mSelectedItemsIds;

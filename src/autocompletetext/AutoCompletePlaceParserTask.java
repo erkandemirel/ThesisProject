@@ -12,7 +12,6 @@ import android.widget.SimpleAdapter;
 import com.example.navigation.TabActivity;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 
 import fragments.FindNearbyPlacesFragment;
@@ -68,7 +67,8 @@ public class AutoCompletePlaceParserTask extends
 					result, android.R.layout.simple_list_item_1, from, to);
 
 			// Setting the adapter
-			FindNearbyPlacesFragment.nearbyPlacesAutoCompleteTextView.setAdapter(adapter);
+			FindNearbyPlacesFragment.nearbyPlacesAutoCompleteTextView
+					.setAdapter(adapter);
 			break;
 
 		case FindNearbyPlacesFragment.PLACES_DETAILS:
@@ -80,17 +80,19 @@ public class AutoCompletePlaceParserTask extends
 			// Getting longitude from the parsed data
 			double longitude = Double.parseDouble(hm.get("lng"));
 
-			FindNearbyPlacesFragment.nearbyPlaceslatLng = new LatLng(latitude, longitude);
+			FindNearbyPlacesFragment.nearbyPlaceslatLng = new LatLng(latitude,
+					longitude);
 
 			CameraUpdate cameraPosition = CameraUpdateFactory
 					.newLatLng(FindNearbyPlacesFragment.nearbyPlaceslatLng);
 
 			// Showing the user input location in the Google Map
-			FindNearbyPlacesFragment.nearbyPlacesGoogleMap.moveCamera(cameraPosition);
+			FindNearbyPlacesFragment.nearbyPlacesGoogleMap
+					.moveCamera(cameraPosition);
 
 			// Adding the marker in the Google Map
-			FindNearbyPlacesFragment.addMarker(FindNearbyPlacesFragment.nearbyPlaceslatLng,
-					BitmapDescriptorFactory.HUE_GREEN);
+			FindNearbyPlacesFragment
+					.addMarker(FindNearbyPlacesFragment.nearbyPlaceslatLng);
 
 			break;
 		}

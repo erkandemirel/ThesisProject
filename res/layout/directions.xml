@@ -20,7 +20,7 @@
         android:layout_height="wrap_content"
         app:layout_gravity="fill_horizontal"
         android:completionThreshold="3"
-         />
+        android:hint="@string/current_loc" />
 
     <TextView
         android:id="@+id/to_label"
@@ -34,7 +34,7 @@
         android:layout_height="wrap_content"
         app:layout_gravity="fill_horizontal"
         android:completionThreshold="3"
-         />
+        android:hint="@string/dest_loc" />
 
     <Button
         android:id="@+id/load_directions"

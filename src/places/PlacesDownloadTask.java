@@ -22,9 +22,6 @@ public class PlacesDownloadTask extends AsyncTask<String, Integer, String> {
 	@Override
 	protected void onPostExecute(String result) {
 		PlacesParserTask parserTask = new PlacesParserTask();
-
-		// Start parsing the Google places in JSON format
-		// Invokes the "doInBackground()" method of ParserTask
 		parserTask.execute(result);
 	}
 	

@@ -20,7 +20,7 @@
             android:layout_width="120dp"
             android:layout_height="30dp"
             android:layout_alignParentLeft="true"
-            android:textOff="Accidents Of"
+            android:textOff="Accidents Off"
             android:textOn="Accidents On" />
     </RelativeLayout>
 

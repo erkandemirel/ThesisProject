@@ -11,6 +11,7 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
+import com.example.navigation.AutoCompleteDirectionsActivity;
 import com.example.navigation.TabActivity;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -108,17 +109,26 @@ public class DirectionsParserTask extends
 					lineOptions.color(Color.parseColor("#05cdf8"));
 
 					if (PlaceDialogFragment.travelling_mode == 0) {
-						// Changing the color polyline according to the mode
-						if (TravellingModeFragment.travelling_mode == 1)
-							lineOptions.color(Color.parseColor("#05cdf8"));
-						else if (TravellingModeFragment.travelling_mode == 2)
-							lineOptions.color(Color.parseColor("#f603b9"));
-						else if (TravellingModeFragment.travelling_mode == 3)
-							lineOptions.color(Color.parseColor("#5203f8"));
-						TravellingModeFragment.progressDialog.dismiss();
 
-						TravellingModeFragment.travellingModeGoogleMap
-								.addPolyline(lineOptions);
+						if (AutoCompleteDirectionsActivity.travelling_mode == 4) {
+
+							TravellingModeFragment.travellingModeGoogleMap
+									.addPolyline(lineOptions);
+							TravellingModeFragment.progressDialog.dismiss();
+						} else {
+							// Changing the color polyline according to the mode
+							if (TravellingModeFragment.travelling_mode == 1)
+								lineOptions.color(Color.parseColor("#05cdf8"));
+							else if (TravellingModeFragment.travelling_mode == 2)
+								lineOptions.color(Color.parseColor("#f603b9"));
+							else if (TravellingModeFragment.travelling_mode == 3)
+								lineOptions.color(Color.parseColor("#5203f8"));
+							
+							TravellingModeFragment.progressDialog.dismiss();
+
+							TravellingModeFragment.travellingModeGoogleMap
+									.addPolyline(lineOptions);
+						}
 
 					} else if (PlaceDialogFragment.travelling_mode == 1) {
 

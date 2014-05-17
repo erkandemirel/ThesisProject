@@ -35,7 +35,7 @@ public class TabActivity extends SherlockFragmentActivity {
 
 		setContentView(R.layout.activity_tabs);
 
-		mainContext = getBaseContext();
+		mainContext = getApplicationContext();
 
 		getSupportActionBar().setHomeButtonEnabled(true);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -64,8 +64,8 @@ public class TabActivity extends SherlockFragmentActivity {
 
 	public class TabPagerAdapter extends FragmentPagerAdapter {
 
-		private final String[] TITLES = { "Nearby Places",
-				"Travelling Mode", "Bookmarks" };
+		private final String[] TITLES = { "Nearby Places", "Travelling Mode",
+				"Bookmarks" };
 
 		public TabPagerAdapter(FragmentManager fm) {
 			super(fm);

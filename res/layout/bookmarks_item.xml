@@ -15,7 +15,7 @@
             android:id="@+id/bookmarksTitleView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#4bc106"
+            android:textColor="#41ad53"
             android:textSize="20dip"
             android:textStyle="italic" />
 

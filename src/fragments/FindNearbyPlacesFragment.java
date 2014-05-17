@@ -55,8 +55,6 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 
 	private ArrayList<Marker> nearbyPlacesMarkerList;
 
-	private static final float UNDEFINED_COLOR = -1;
-
 	public static final int PLACES = 0;
 
 	public static final int PLACES_DETAILS = 1;
@@ -81,6 +79,8 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 	private ActionBarDrawerToggle nearbyPlacesDrawerToggle = null;
 
 	private View nearbyPlacesRootView;
+	
+	public static String placeType;
 
 	Handler handler = new Handler();
 	Random random = new Random();
@@ -226,22 +226,28 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 					int position, long arg3) {
 
 				if (position == 0) {
-					getNearbyPlaces("airport");
+					placeType="airport";
+					getNearbyPlaces(placeType);
 					nearbyPlacesDrawerLayout.closeDrawer(nearbyPlaceslistview);
 				} else if (position == 1) {
-					getNearbyPlaces("bank");
+					placeType="bank";
+					getNearbyPlaces(placeType);
 					nearbyPlacesDrawerLayout.closeDrawer(nearbyPlaceslistview);
 				} else if (position == 2) {
-					getNearbyPlaces("bus_station");
+					placeType="bus_station";
+					getNearbyPlaces(placeType);
 					nearbyPlacesDrawerLayout.closeDrawer(nearbyPlaceslistview);
 				} else if (position == 3) {
-					getNearbyPlaces("hospital");
+					placeType="hospital";
+					getNearbyPlaces(placeType);
 					nearbyPlacesDrawerLayout.closeDrawer(nearbyPlaceslistview);
 				} else if (position == 4) {
-					getNearbyPlaces("mosque");
+					placeType="mosque";
+					getNearbyPlaces(placeType);
 					nearbyPlacesDrawerLayout.closeDrawer(nearbyPlaceslistview);
 				} else if (position == 5) {
-					getNearbyPlaces("restaurant");
+					placeType="restaurant";
+					getNearbyPlaces(placeType);
 					nearbyPlacesDrawerLayout.closeDrawer(nearbyPlaceslistview);
 				}
 
@@ -290,7 +296,7 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 			public void onMapClick(LatLng point) {
 
 				nearbyPlaceslatLng = point;
-				addMarker(nearbyPlaceslatLng, BitmapDescriptorFactory.HUE_GREEN);
+				addMarker(nearbyPlaceslatLng);
 			}
 		});
 
@@ -373,14 +379,14 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 		nearbyPlacesMarkerList.clear();
 	}
 
-	public static Marker addMarker(LatLng latLng, float color) {
+	public static Marker addMarker(LatLng latLng) {
 
 		MarkerOptions markerOptions = new MarkerOptions();
 
 		markerOptions.position(latLng);
 
-		if (color != UNDEFINED_COLOR)
-			markerOptions.icon(BitmapDescriptorFactory.defaultMarker(color));
+		markerOptions.icon(BitmapDescriptorFactory
+				.fromResource(R.drawable.marker_icon));
 
 		Marker m = nearbyPlacesGoogleMap.addMarker(markerOptions);
 
