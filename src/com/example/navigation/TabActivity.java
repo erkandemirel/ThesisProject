@@ -1,21 +1,20 @@
 package com.example.navigation;
 
+import tools.TabPagerAdapter;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.location.LocationManager;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 
 import com.astuetz.PagerSlidingTabStrip;
-
-import fragments.BookmarksFragment;
-import fragments.FindNearbyPlacesFragment;
-import fragments.TravellingModeFragment;
 
 public class TabActivity extends SherlockFragmentActivity {
 
@@ -27,11 +26,23 @@ public class TabActivity extends SherlockFragmentActivity {
 
 	public static Context mainContext;
 
+	boolean isGPSEnabled = false;
+
+	boolean isNetworkEnabled = false;
+
 	@SuppressLint("Recycle")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 
 		super.onCreate(savedInstanceState);
+
+		isInternetConnectionEnabled();
+
+		final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+		if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+			buildAlertMessageNoGps();
+		}
 
 		setContentView(R.layout.activity_tabs);
 
@@ -48,10 +59,8 @@ public class TabActivity extends SherlockFragmentActivity {
 		pager.setOffscreenPageLimit(3);
 		pager.setAdapter(adapter);
 
-		// Creating an instance of DisplayMetrics
 		displayMetrics = new DisplayMetrics();
 
-		// Getting the screen display metrics
 		getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
 
 		final int pageMargin = (int) TypedValue.applyDimension(
@@ -60,51 +69,62 @@ public class TabActivity extends SherlockFragmentActivity {
 		pager.setPageMargin(pageMargin);
 
 		tabs.setViewPager(pager);
+
 	}
 
-	public class TabPagerAdapter extends FragmentPagerAdapter {
+	private void buildAlertMessageNoGps() {
+		final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle("GPS Settings");
+		builder.setMessage(
+				"GPS is not enabled. Do you want to go to settings menu?")
+				.setCancelable(false)
+				.setPositiveButton("Yes",
+						new DialogInterface.OnClickListener() {
+							public void onClick(final DialogInterface dialog,
+									final int id) {
+								startActivity(new Intent(
+										android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+							}
+						})
+				.setNegativeButton("No", new DialogInterface.OnClickListener() {
+					public void onClick(final DialogInterface dialog,
+							final int id) {
+						dialog.cancel();
+					}
+				});
+		final AlertDialog alert = builder.create();
+		alert.show();
+	}
 
-		private final String[] TITLES = { "Nearby Places", "Travelling Mode",
-				"Bookmarks" };
+	public void isInternetConnectionEnabled() {
+		ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
-		public TabPagerAdapter(FragmentManager fm) {
-			super(fm);
+		if (cm.getActiveNetworkInfo() != null
+				&& cm.getActiveNetworkInfo().isConnectedOrConnecting()) {
 
-		}
-
-		@Override
-		public CharSequence getPageTitle(int position) {
-			return TITLES[position];
-		}
-
-		@Override
-		public int getCount() {
-			return TITLES.length;
-		}
-
-		@Override
-		public Fragment getItem(int position) {
-
-			if (position == 0) {
-
-				return FindNearbyPlacesFragment.newInstance(position,
-						"Find Nearby Places");
-
-			}
-
-			else if (position == 1) {
-
-				return TravellingModeFragment.newInstance(position,
-						"Travelling Mode");
-			}
-
-			else if (position == 2) {
-
-				return BookmarksFragment.newInstance(position, "Bookmarks");
-			}
-
-			return null;
-
+		} else {
+			final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setTitle("Internet Connection Settings");
+			builder.setMessage(
+					"Internet is not enabled. Do you want to go to settings menu?")
+					.setCancelable(false)
+					.setPositiveButton("Yes",
+							new DialogInterface.OnClickListener() {
+								public void onClick(
+										final DialogInterface dialog,
+										final int id) {
+									startActivity(new Intent(
+											android.provider.Settings.ACTION_NETWORK_OPERATOR_SETTINGS));
+								}
+							})
+					.setNegativeButton("No",
+							new DialogInterface.OnClickListener() {
+								public void onClick(
+										final DialogInterface dialog,
+										final int id) {
+									dialog.cancel();
+								}
+							});
 		}
 
 	}

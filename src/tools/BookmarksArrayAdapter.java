@@ -6,7 +6,9 @@ import com.example.navigation.AutoCompleteDirectionsActivity;
 import com.example.navigation.R;
 
 import database.BookmarksItem;
+import fragments.BookmarksFragment;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,8 +22,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class BookmarksArrayAdapter extends ArrayAdapter<BookmarksItem> {
-	
-	public static int checkNumber=0;
+
+	public static int checkNumber = 0;
 	int resource;
 	Context context;
 	List<BookmarksItem> bookmarksItemList;
@@ -45,8 +47,9 @@ public class BookmarksArrayAdapter extends ArrayAdapter<BookmarksItem> {
 		ImageView bookmarksRouteView;
 	}
 
+	@SuppressLint("UseValueOf")
 	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
+	public View getView(final int position, View convertView, ViewGroup parent) {
 
 		BookmarksItem bookmarksItem = getItem(position);
 		String bookmarksItemTitle = bookmarksItem.getBookmarksItemTitle();
@@ -73,23 +76,30 @@ public class BookmarksArrayAdapter extends ArrayAdapter<BookmarksItem> {
 		} else {
 			holder = (ViewHolder) bookmarksItemView.getTag();
 		}
+		holder.bookmarksRouteView.setTag(new Integer(position));
 
 		holder.bookmarksTitleView.setText(bookmarksItemTitle);
 		holder.bookmarksRouteView.setImageResource(R.drawable.bookmarksroute);
 		holder.bookmarksAddressView.setText(bookmarksItemAddress);
 
-		
-
 		holder.bookmarksRouteView.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				checkNumber=1;
-				bundle.putString("address", bookmarksItemAddress);
+				checkNumber = 1;
+				int position = (Integer) v.getTag();
+
+				BookmarksItem item = (BookmarksItem) BookmarksFragment.bookmarksListView
+						.getItemAtPosition(position);
+				String address = item.getBookmarksItemAddress();
+
 				Intent bookmarksToDirectionActivityIntent = new Intent(context,
 						AutoCompleteDirectionsActivity.class);
+
 				bookmarksToDirectionActivityIntent.putExtra("bookmarksAddress",
 						bookmarksItemAddress);
+				bookmarksToDirectionActivityIntent.putExtra("address", address);
+				
 				context.startActivity(bookmarksToDirectionActivityIntent);
 
 			}
@@ -98,9 +108,7 @@ public class BookmarksArrayAdapter extends ArrayAdapter<BookmarksItem> {
 		return bookmarksItemView;
 
 	}
-	
-	
-	
+
 	// **** External Methods ****
 
 	public SparseBooleanArray getSelectedIds() {

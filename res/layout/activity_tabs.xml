@@ -7,18 +7,24 @@
     <FrameLayout
         android:id="@+id/fragmentContainer"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent" />
+        android:layout_height="fill_parent"
+        android:background="#000000"
+        android:textColor="#ffffff" />
 
     <com.astuetz.PagerSlidingTabStrip
         android:id="@+id/tabs"
         android:layout_width="match_parent"
-        android:layout_height="48dip" />
+        android:layout_height="48dip"
+        android:background="#000000"
+        android:textColor="#ffffff" />
 
     <viewpager.NavigationViewPager
         android:id="@+id/pager"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/tabs"
+        android:background="#000000"
+        android:textColor="#ffffff"
         tools:context=".TabActivity" >
     </viewpager.NavigationViewPager>
 

@@ -46,7 +46,7 @@ import android.widget.ListView;
 public class BookmarksFragment extends SherlockFragment implements
 		LoaderManager.LoaderCallbacks<Cursor> {
 
-	ListView bookmarksListView;
+	public static ListView bookmarksListView;
 	ArrayList<BookmarksItem> bookmarksItems;
 	static BookmarksArrayAdapter bookmarksArrayAdapter;
 

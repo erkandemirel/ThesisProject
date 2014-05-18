@@ -470,15 +470,21 @@ public class TravellingModeFragment extends SherlockMapFragment {
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
+		
 		if (resultCode == AutoCompleteDirectionsActivity.RESULT_CODE) {
+			
 			progressDialog = new ProgressDialog(
 					getSherlockActivity());
 			progressDialog.setMessage("Loading...");
 			progressDialog.setCancelable(false);
 			progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 			progressDialog.show();
+			
 			String from = data.getExtras().getString("from");
 			String to = data.getExtras().getString("to");
+			
+			System.out.println(from);
+			System.out.println(to);
 
 			new DirectionsFetcher(from, to).execute();
 

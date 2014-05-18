@@ -1,6 +1,7 @@
 package com.example.navigation;
 
 import tools.AutoCompleteDirectionsActivityAdapter;
+import tools.BookmarksArrayAdapter;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -27,7 +28,14 @@ public class AutoCompleteDirectionsActivity extends Activity {
 		from = (AutoCompleteTextView) findViewById(R.id.from);
 		to = (AutoCompleteTextView) findViewById(R.id.to);
 		from.setText("My Location");
-		
+
+		if (BookmarksArrayAdapter.checkNumber == 1) {
+			
+			String address = getIntent().getStringExtra("address");
+			to.setText(address);
+			BookmarksArrayAdapter.checkNumber = 0;
+		}
+
 		from.setAdapter(new AutoCompleteDirectionsActivityAdapter(this,
 				android.R.layout.simple_dropdown_item_1line));
 		to.setAdapter(new AutoCompleteDirectionsActivityAdapter(this,
