@@ -53,7 +53,7 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 
 	private SupportMapFragment nearbyPlacesfragment;
 
-	private ArrayList<Marker> nearbyPlacesMarkerList;
+	public static ArrayList<Marker> nearbyPlacesMarkerList;
 
 	public static final int PLACES = 0;
 
@@ -374,7 +374,7 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 		}
 	}
 
-	public void clearMarkers() {
+	public static void clearMarkers() {
 		nearbyPlacesGoogleMap.clear();
 		nearbyPlacesMarkerList.clear();
 	}

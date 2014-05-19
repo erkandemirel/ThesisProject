@@ -16,13 +16,18 @@ public class BookmarksItem implements Serializable, Parcelable {
 	private int bookmarksItemID;
 	private String bookmarksItemTitle;
 	private String bookmarksItemAddress;
+	private double bookmarksItemLatitude;
+	private double bookmarksItemLongitude;
 
 	public BookmarksItem(int bookmarksItemID, String bookmarksItemTitle,
-			String bookmarksItemAddress) {
+			String bookmarksItemAddress,double bookmarksItemLatitude,double bookmarksItemLongitude) {
 
 		this.setBookmarksItemID(bookmarksItemID);
 		this.setBookmarksItemTitle(bookmarksItemTitle);
 		this.setBookmarksItemAddress(bookmarksItemAddress);
+		this.setBookmarksItemLatitude(bookmarksItemLatitude);
+		this.setBookmarksItemLongitude(bookmarksItemLongitude);
+		
 	}
 
 	public BookmarksItem() {
@@ -62,6 +67,22 @@ public class BookmarksItem implements Serializable, Parcelable {
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
 
+	}
+
+	public double getBookmarksItemLatitude() {
+		return bookmarksItemLatitude;
+	}
+
+	public void setBookmarksItemLatitude(double bookmarksItemLatitude) {
+		this.bookmarksItemLatitude = bookmarksItemLatitude;
+	}
+
+	public double getBookmarksItemLongitude() {
+		return bookmarksItemLongitude;
+	}
+
+	public void setBookmarksItemLongitude(double bookmarksItemLongitude) {
+		this.bookmarksItemLongitude = bookmarksItemLongitude;
 	}
 
 }

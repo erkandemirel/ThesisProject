@@ -45,6 +45,10 @@
             android:name="com.example.navigation.AutoCompleteDirectionsActivity"
             android:label="@string/directions_input" >
         </activity>
+        <activity
+            android:name="fragments.BookmarksFragment"
+            android:label="@string/bookmarks" >
+        </activity>
 
         <provider
             android:name="database.BookmarksContentProvider"

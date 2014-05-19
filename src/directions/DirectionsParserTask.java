@@ -103,7 +103,6 @@ public class DirectionsParserTask extends
 
 					}
 
-					// Adding all the points in the route to LineOptions
 					lineOptions.addAll(points);
 					lineOptions.width(5);
 					lineOptions.color(Color.parseColor("#05cdf8"));
@@ -114,7 +113,7 @@ public class DirectionsParserTask extends
 
 							TravellingModeFragment.travellingModeGoogleMap
 									.addPolyline(lineOptions);
-							TravellingModeFragment.progressDialog.dismiss();
+							//TravellingModeFragment.progressDialog.dismiss();
 						} else {
 							// Changing the color polyline according to the mode
 							if (TravellingModeFragment.travelling_mode == 1)

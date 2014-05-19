@@ -3,6 +3,7 @@ package fragments;
 import java.util.ArrayList;
 import java.util.Random;
 
+import tools.GPSTracker;
 import tools.TravellingModeSlidingMenuAdapter;
 import trafficparser.ParseTask;
 import android.app.Activity;
@@ -34,6 +35,9 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.example.navigation.AutoCompleteDirectionsActivity;
 import com.example.navigation.R;
+import com.example.navigation.TabActivity;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
@@ -45,6 +49,7 @@ import directions.DirectionsDownloadTask;
 import directions.DirectionsFetcher;
 import directions.DirectionsMarkers;
 import directions.DirectionsParserTask;
+import directions.DirectionsReverseGeocodingTask;
 
 public class TravellingModeFragment extends SherlockMapFragment {
 
@@ -79,6 +84,9 @@ public class TravellingModeFragment extends SherlockMapFragment {
 	DirectionsDownloadTask directionsdownloadTask;
 
 	public static ProgressDialog progressDialog;
+	GPSTracker gps = new GPSTracker(TabActivity.mainContext);
+	DirectionsReverseGeocodingTask reverseGeocodingTask = new DirectionsReverseGeocodingTask(
+			gps);
 
 	Handler handler = new Handler();
 	Random random = new Random();
@@ -132,6 +140,10 @@ public class TravellingModeFragment extends SherlockMapFragment {
 			startActivityForResult(new Intent(getActivity(),
 					AutoCompleteDirectionsActivity.class),
 					AutoCompleteDirectionsActivity.RESULT_CODE);
+			break;
+		case R.id.bookmarks:
+			startActivityForResult(new Intent(getActivity(),
+					BookmarksFragment.class), BookmarksFragment.RESULT_CODE);
 			break;
 		case android.R.id.home:
 			if (travellingModeDrawerLayout.isDrawerOpen(travellingModeListview)) {
@@ -241,7 +253,7 @@ public class TravellingModeFragment extends SherlockMapFragment {
 									"No points on the map!", Toast.LENGTH_LONG)
 									.show();
 
-						} else if(travellingModeMarkerLocations.size()>=2) {
+						} else if (travellingModeMarkerLocations.size() >= 2) {
 
 							if (position == 0) {
 								progressDialog = new ProgressDialog(
@@ -252,18 +264,14 @@ public class TravellingModeFragment extends SherlockMapFragment {
 								progressDialog.show();
 
 								travelling_mode = 1;
-								AutoCompleteDirectionsActivity.travelling_mode=0;
+								AutoCompleteDirectionsActivity.travelling_mode = 0;
 
 								if (travellingModeMarkerLocations.size() >= 2) {
 									LatLng origin = travellingModeMarkerLocations
 											.get(0);
-									
-									
-									
+
 									LatLng dest = travellingModeMarkerLocations
 											.get(1);
-									
-								
 
 									String url = DirectionsParserTask
 											.getDirectionsUrl(origin, dest,
@@ -271,7 +279,6 @@ public class TravellingModeFragment extends SherlockMapFragment {
 
 									directionsdownloadTask = new DirectionsDownloadTask();
 									directionsdownloadTask.execute(url);
-									
 
 									travellingModeDrawerLayout
 											.closeDrawer(travellingModeListview);
@@ -286,7 +293,7 @@ public class TravellingModeFragment extends SherlockMapFragment {
 								progressDialog.show();
 
 								travelling_mode = 2;
-								AutoCompleteDirectionsActivity.travelling_mode=0;
+								AutoCompleteDirectionsActivity.travelling_mode = 0;
 
 								if (travellingModeMarkerLocations.size() >= 2) {
 									LatLng origin = travellingModeMarkerLocations
@@ -315,7 +322,7 @@ public class TravellingModeFragment extends SherlockMapFragment {
 								progressDialog.show();
 
 								travelling_mode = 3;
-								AutoCompleteDirectionsActivity.travelling_mode=0;
+								AutoCompleteDirectionsActivity.travelling_mode = 0;
 
 								if (travellingModeMarkerLocations.size() >= 2) {
 									LatLng origin = travellingModeMarkerLocations
@@ -470,23 +477,43 @@ public class TravellingModeFragment extends SherlockMapFragment {
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		
+
 		if (resultCode == AutoCompleteDirectionsActivity.RESULT_CODE) {
-			
-			progressDialog = new ProgressDialog(
-					getSherlockActivity());
-			progressDialog.setMessage("Loading...");
-			progressDialog.setCancelable(false);
-			progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-			progressDialog.show();
-			
+
 			String from = data.getExtras().getString("from");
 			String to = data.getExtras().getString("to");
-			
-			System.out.println(from);
-			System.out.println(to);
 
 			new DirectionsFetcher(from, to).execute();
+
+		}
+
+		else if (resultCode == BookmarksFragment.RESULT_CODE) {
+
+			double originLatitude = data.getExtras()
+					.getDouble("originLatitude");
+			double originLongitude = data.getExtras().getDouble(
+					"originLongitude");
+			double destLatitude = data.getExtras().getDouble("destLatitude");
+			double destLongitude = data.getExtras().getDouble("destLongitude");
+
+			LatLng origin = new LatLng(originLatitude, originLongitude);
+
+			LatLng dest = new LatLng(destLatitude, destLongitude);
+
+			clearMarkers();
+			travellingModeMarkerLocations.add(0, origin);
+			travellingModeMarkerLocations.add(1, dest);
+			DirectionsMarkers.drawStartStopMarkers();
+			CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(
+					origin, 7);
+			TravellingModeFragment.travellingModeGoogleMap
+					.animateCamera(cameraUpdate);
+
+			String url = DirectionsParserTask.getDirectionsUrl(origin, dest, 1);
+
+			DirectionsDownloadTask directionsdownloadTask = new DirectionsDownloadTask();
+
+			directionsdownloadTask.execute(url);
 
 		}
 	}

@@ -7,17 +7,7 @@ import java.net.URL;
 
 import places.Photo;
 import places.Place;
-
 import tools.GPSTracker;
-
-import com.example.navigation.R;
-import com.example.navigation.TabActivity;
-import com.google.android.gms.maps.model.LatLng;
-
-import directions.DirectionsDownloadTask;
-import directions.DirectionsParserTask;
-import fragments.AddDatabaseFragment;
-
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -31,13 +21,20 @@ import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
+
+import com.example.navigation.R;
+import com.example.navigation.TabActivity;
+import com.google.android.gms.maps.model.LatLng;
+
+import directions.DirectionsDownloadTask;
+import directions.DirectionsParserTask;
 
 @SuppressLint("ValidFragment")
 public class PlaceDialogFragment extends DialogFragment {
@@ -142,6 +139,10 @@ public class PlaceDialogFragment extends DialogFragment {
 
 					LatLng dest = new LatLng(latitude, longitude);
 
+					FindNearbyPlacesFragment.clearMarkers();
+					FindNearbyPlacesFragment.addMarker(dest);
+					FindNearbyPlacesFragment.addMarker(origin);
+					
 					String url = DirectionsParserTask.getDirectionsUrl(origin,
 							dest, 1);
 
@@ -245,5 +246,8 @@ public class PlaceDialogFragment extends DialogFragment {
 
 		}
 	}
+	
+
+
 
 }

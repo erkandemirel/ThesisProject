@@ -59,6 +59,9 @@ public class DirectionsFetcher extends AsyncTask<URL, Integer, Void> {
 			}
 		}
 		try {
+			
+			System.out.println(origin);
+			System.out.println(destination);
 			HttpRequestFactory requestFactory = HTTP_TRANSPORT
 					.createRequestFactory(new HttpRequestInitializer() {
 						@Override

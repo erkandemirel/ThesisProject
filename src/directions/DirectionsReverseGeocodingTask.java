@@ -21,7 +21,7 @@ public class DirectionsReverseGeocodingTask extends
 
 	// Finding address using reverse geocoding
 	@Override
-	protected String doInBackground(LatLng... params) {
+	public String doInBackground(LatLng... params) {
 		Geocoder geocoder = new Geocoder(mContext);
 		double latitude = params[0].latitude;
 		double longitude = params[0].longitude;

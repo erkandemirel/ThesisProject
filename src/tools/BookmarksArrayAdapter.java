@@ -4,10 +4,9 @@ import java.util.List;
 
 import com.example.navigation.AutoCompleteDirectionsActivity;
 import com.example.navigation.R;
-
+import com.example.navigation.TabActivity;
 import database.BookmarksItem;
 import fragments.BookmarksFragment;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -23,12 +22,13 @@ import android.widget.TextView;
 
 public class BookmarksArrayAdapter extends ArrayAdapter<BookmarksItem> {
 
-	public static int checkNumber = 0;
 	int resource;
 	Context context;
 	List<BookmarksItem> bookmarksItemList;
 	private SparseBooleanArray mSelectedItemsIds;
 	Bundle bundle;
+	public static final int RESULT_CODE = 1234;
+	GPSTracker gps;
 
 	public BookmarksArrayAdapter(Context context, int resource,
 			List<BookmarksItem> bookmarksItemList) {
@@ -86,21 +86,32 @@ public class BookmarksArrayAdapter extends ArrayAdapter<BookmarksItem> {
 
 			@Override
 			public void onClick(View v) {
-				checkNumber = 1;
+
+				gps = new GPSTracker(TabActivity.mainContext);
+				AutoCompleteDirectionsActivity.travelling_mode = 4;
+
+				double originLatitude = gps.getLatitude();
+				double originLongitude = gps.getLongitude();
+
 				int position = (Integer) v.getTag();
 
 				BookmarksItem item = (BookmarksItem) BookmarksFragment.bookmarksListView
 						.getItemAtPosition(position);
-				String address = item.getBookmarksItemAddress();
 
-				Intent bookmarksToDirectionActivityIntent = new Intent(context,
-						AutoCompleteDirectionsActivity.class);
+				double destLatitude = item.getBookmarksItemLatitude();
 
-				bookmarksToDirectionActivityIntent.putExtra("bookmarksAddress",
-						bookmarksItemAddress);
-				bookmarksToDirectionActivityIntent.putExtra("address", address);
-				
-				context.startActivity(bookmarksToDirectionActivityIntent);
+				double destLongitude = item.getBookmarksItemLongitude();
+			
+				Intent bookmarksIntent = new Intent();
+				bookmarksIntent.putExtra("originLatitude", originLatitude);
+				bookmarksIntent.putExtra("originLongitude", originLongitude);
+				bookmarksIntent.putExtra("destLatitude", destLatitude);
+				bookmarksIntent.putExtra("destLongitude", destLongitude);
+
+				BookmarksFragment.bookmarksActivity.setResult(RESULT_CODE,
+						bookmarksIntent);
+
+				BookmarksFragment.bookmarksActivity.finish();
 
 			}
 		});

@@ -3,14 +3,12 @@ package tools;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import fragments.BookmarksFragment;
 import fragments.FindNearbyPlacesFragment;
 import fragments.TravellingModeFragment;
 
 public class TabPagerAdapter extends FragmentPagerAdapter {
 
-	private final String[] TITLES = { "Nearby Places", "Travelling Mode",
-			"Bookmarks" };
+	private final String[] TITLES = { "Nearby Places", "Travelling Mode"};
 
 	public TabPagerAdapter(FragmentManager fm) {
 		super(fm);
@@ -41,11 +39,6 @@ public class TabPagerAdapter extends FragmentPagerAdapter {
 
 			return TravellingModeFragment.newInstance(position,
 					"Travelling Mode");
-		}
-
-		else if (position == 2) {
-
-			return BookmarksFragment.newInstance(position, "Bookmarks");
 		}
 
 		return null;

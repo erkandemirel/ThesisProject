@@ -1,11 +1,7 @@
 package fragments;
 
 import java.util.ArrayList;
-import java.util.Random;
-
 import tools.BookmarksArrayAdapter;
-
-import com.actionbarsherlock.app.SherlockFragment;
 
 import com.example.navigation.R;
 import com.example.navigation.TabActivity;
@@ -15,10 +11,11 @@ import database.BookmarksContentProvider;
 import database.BookmarksItem;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.Handler;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.CursorLoader;
@@ -28,13 +25,10 @@ import android.util.DisplayMetrics;
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
 import android.view.Display;
-import android.view.InflateException;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AdapterView;
@@ -43,51 +37,36 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 
 @SuppressLint("NewApi")
-public class BookmarksFragment extends SherlockFragment implements
+public class BookmarksFragment extends FragmentActivity implements
 		LoaderManager.LoaderCallbacks<Cursor> {
-
+	public static final int RESULT_CODE = 1234;
 	public static ListView bookmarksListView;
 	ArrayList<BookmarksItem> bookmarksItems;
 	static BookmarksArrayAdapter bookmarksArrayAdapter;
 
 	public long rowId;
 
-	View bookmarksRootView;
-
-	Handler handler = new Handler();
-	Random random = new Random();
-	Runnable runner = new Runnable() {
-		@Override
-		public void run() {
-			setHasOptionsMenu(true);
-		}
-	};
-
-	public static BookmarksFragment newInstance(int position, String title) {
-		BookmarksFragment fragment = new BookmarksFragment();
-		Bundle bundle = new Bundle();
-		bundle.putInt("position", position);
-		bundle.putString("title", title);
-		fragment.setArguments(bundle);
-		return fragment;
-	}
+	public static Activity bookmarksActivity;
 
 	@SuppressWarnings({ "static-access" })
 	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
+	public void onCreate(Bundle savedInstanceState) {
 
-		super.onActivityCreated(savedInstanceState);
+		super.onCreate(savedInstanceState);
 
-		bookmarksListView = (ListView) bookmarksRootView
-				.findViewById(R.id.bookmarksListView);
+		setContentView(R.layout.booksmark);
+
+		bookmarksListView = (ListView) findViewById(R.id.bookmarksListView);
 
 		bookmarksItems = BookmarksContentProvider.getAllBookmarksItem();
-		bookmarksArrayAdapter = new BookmarksArrayAdapter(getActivity(),
+		bookmarksArrayAdapter = new BookmarksArrayAdapter(this,
 				R.layout.bookmarks_item, bookmarksItems);
 		bookmarksListView.setAdapter(bookmarksArrayAdapter);
 		bookmarksArrayAdapter.notifyDataSetChanged();
 
-		getLoaderManager().initLoader(0, null, this);
+		bookmarksActivity =this;
+
+		getSupportLoaderManager().initLoader(0, null, this);
 
 		bookmarksListView
 				.setChoiceMode(bookmarksListView.CHOICE_MODE_MULTIPLE_MODAL);
@@ -110,7 +89,7 @@ public class BookmarksFragment extends SherlockFragment implements
 
 					@Override
 					public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-						MenuInflater inflater = getActivity().getMenuInflater();
+						MenuInflater inflater = getMenuInflater();
 						inflater.inflate(R.menu.bookmarks_context_menu, menu);
 						return true;
 					}
@@ -183,7 +162,7 @@ public class BookmarksFragment extends SherlockFragment implements
 				EditDatabaseFragment editDatabaseFragment = new EditDatabaseFragment(
 						rowId, item, dm);
 
-				FragmentManager fm = getFragmentManager();
+				FragmentManager fm = getSupportFragmentManager();
 
 				FragmentTransaction fragmentTransaction = fm.beginTransaction();
 
@@ -204,28 +183,6 @@ public class BookmarksFragment extends SherlockFragment implements
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
-
-		handler.postDelayed(runner, random.nextInt(2000));
-
-		if (bookmarksRootView != null) {
-			ViewGroup parent = (ViewGroup) bookmarksRootView.getParent();
-			if (parent != null)
-				parent.removeView(bookmarksRootView);
-		}
-		try {
-			bookmarksRootView = inflater.inflate(R.layout.booksmark, container,
-					false);
-		} catch (InflateException e) {
-
-		}
-
-		return bookmarksRootView;
-
-	}
-
-	@Override
 	public void onResume() {
 
 		super.onResume();
@@ -239,8 +196,8 @@ public class BookmarksFragment extends SherlockFragment implements
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int arg0, Bundle arg1) {
-		return new CursorLoader(getActivity(),
-				BookmarksContentProvider.CONTENT_URI, null, null, null, null);
+		return new CursorLoader(this, BookmarksContentProvider.CONTENT_URI,
+				null, null, null, null);
 	}
 
 	@Override
@@ -255,14 +212,21 @@ public class BookmarksFragment extends SherlockFragment implements
 
 		final int addressColumnIndex = cursor
 				.getColumnIndexOrThrow(Bookmarks.ADDRESS);
+		
+		final int latitudeColumnIndex = cursor
+				.getColumnIndexOrThrow(Bookmarks.FIELD_LAT);
+		
+		final int longitudeColumnIndex = cursor
+				.getColumnIndexOrThrow(Bookmarks.FIELD_LNG);
 
 		while (cursor.moveToNext()) {
 
 			final int id = cursor.getInt(idColumnIndex);
 			final String title = cursor.getString(titleColumnIndex);
 			final String address = cursor.getString(addressColumnIndex);
-
-			bookmarksItems.add(new BookmarksItem(id, title, address));
+			final double latitude = cursor.getDouble(latitudeColumnIndex);
+			final double longitude = cursor.getDouble(longitudeColumnIndex);
+			bookmarksItems.add(new BookmarksItem(id, title, address,latitude,longitude));
 		}
 		bookmarksArrayAdapter.notifyDataSetChanged();
 

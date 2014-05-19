@@ -40,12 +40,12 @@ public class BookmarksContentProvider extends ContentProvider {
 	}
 
 	private static Bookmarks bookmarksDB;
-	
+
 	private static SQLiteDatabase database;
-	
+
 	private static String[] allColumns = { Bookmarks.FIELD_ROW_ID,
-			Bookmarks.FIELD_LNG, Bookmarks.FIELD_LAT,
-			Bookmarks.LOCATION_NAME, Bookmarks.ADDRESS };
+			Bookmarks.FIELD_LNG, Bookmarks.FIELD_LAT, Bookmarks.LOCATION_NAME,
+			Bookmarks.ADDRESS };
 
 	@Override
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
@@ -182,9 +182,6 @@ public class BookmarksContentProvider extends ContentProvider {
 
 		return updateCount;
 	}
-	
-	
-
 
 	public static void open() throws SQLException {
 		database = bookmarksDB.getWritableDatabase();
@@ -197,8 +194,8 @@ public class BookmarksContentProvider extends ContentProvider {
 	public static ArrayList<BookmarksItem> getAllBookmarksItem() {
 		ArrayList<BookmarksItem> list = new ArrayList<BookmarksItem>();
 		database = bookmarksDB.getWritableDatabase();
-		Cursor cursor = database.query(Bookmarks.DATABASE_TABLE,
-				allColumns, null, null, null, null, null);
+		Cursor cursor = database.query(Bookmarks.DATABASE_TABLE, allColumns,
+				null, null, null, null, null);
 		cursor.moveToFirst();
 		while (!cursor.isAfterLast()) {
 			BookmarksItem item = cursorToComment(cursor);
@@ -215,6 +212,8 @@ public class BookmarksContentProvider extends ContentProvider {
 	private static BookmarksItem cursorToComment(Cursor cursor) {
 		BookmarksItem item = new BookmarksItem();
 		item.setBookmarksItemID(cursor.getInt(0));
+		item.setBookmarksItemLongitude(cursor.getDouble(1));
+		item.setBookmarksItemLatitude(cursor.getDouble(2));
 		item.setBookmarksItemTitle(cursor.getString(3));
 		item.setBookmarksItemAddress(cursor.getString(4));
 		return item;
