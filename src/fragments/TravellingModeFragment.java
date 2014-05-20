@@ -83,7 +83,7 @@ public class TravellingModeFragment extends SherlockMapFragment {
 	public static Activity travellingModeActivity;
 
 	private String bingServerAccidentUrl = "http://dev.virtualearth.net/REST/v1/Traffic/Incidents/";
-	private String bingAPIKey = "AoHoD_fdpQD73-OoTNnnsGzYu5ClXmVNAGr2t-M_wKbR8TWHqKrZR1X6GHI5pzWm";
+	private String bingAPIKey = "AmXNDf09oaDB9ynp_NmJLxgQi-2WYy9lzZob2_Gj0pqJVz14HiC9AqgArNuuiyvW";
 	private String bingServerCompleteUrl;
 
 	DirectionsDownloadTask directionsdownloadTask;

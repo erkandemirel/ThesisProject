@@ -18,7 +18,7 @@
         <TextView
             android:id="@+id/np_dist_dur_view"
             android:layout_width="220dp"
-            android:layout_height="30dp"
+            android:layout_height="50dp"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:paddingBottom="5dp"
