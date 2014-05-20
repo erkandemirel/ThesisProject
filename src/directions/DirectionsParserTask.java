@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import trafficparser.ParseTask;
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.view.View;
 import android.widget.Toast;
 
 import com.example.navigation.AutoCompleteDirectionsActivity;
@@ -74,6 +75,22 @@ public class DirectionsParserTask extends
 							continue;
 						}
 
+						if (TravellingModeFragment.checkedView == 1) {
+							TravellingModeFragment.distanceDurationView
+									.setText("Distance:" + distance + " "
+											+ "Duration:" + duration);
+							TravellingModeFragment.distanceDurationView
+									.setVisibility(View.VISIBLE);
+							TravellingModeFragment.checkedView = 0;
+						} else if (FindNearbyPlacesFragment.checkedView == 1) {
+
+							FindNearbyPlacesFragment.distanceDurationView
+									.setText("Distance:" + distance + " "
+											+ "Duration:" + duration);
+							FindNearbyPlacesFragment.distanceDurationView
+									.setVisibility(View.VISIBLE);
+							FindNearbyPlacesFragment.checkedView = 0;
+						}
 						double lat = Double.parseDouble(point.get("lat"));
 						double lng = Double.parseDouble(point.get("lng"));
 						LatLng position = new LatLng(lat, lng);
@@ -113,7 +130,7 @@ public class DirectionsParserTask extends
 
 							TravellingModeFragment.travellingModeGoogleMap
 									.addPolyline(lineOptions);
-							//TravellingModeFragment.progressDialog.dismiss();
+							// TravellingModeFragment.progressDialog.dismiss();
 						} else {
 							// Changing the color polyline according to the mode
 							if (TravellingModeFragment.travelling_mode == 1)
@@ -122,7 +139,7 @@ public class DirectionsParserTask extends
 								lineOptions.color(Color.parseColor("#f603b9"));
 							else if (TravellingModeFragment.travelling_mode == 3)
 								lineOptions.color(Color.parseColor("#5203f8"));
-							
+
 							TravellingModeFragment.progressDialog.dismiss();
 
 							TravellingModeFragment.travellingModeGoogleMap
@@ -170,10 +187,10 @@ public class DirectionsParserTask extends
 			mode = "mode=driving";
 
 		} else if (travelling_mode == 2) {
-			mode = "mode=bicycling";
+			mode = "mode=walking";
 
 		} else if (travelling_mode == 3) {
-			mode = "mode=walking";
+			mode = "mode=bicycling";
 
 		}
 

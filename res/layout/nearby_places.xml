@@ -14,6 +14,16 @@
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
+        
+        <TextView
+            android:id="@+id/np_dist_dur_view"
+            android:layout_width="220dp"
+            android:layout_height="30dp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:paddingBottom="5dp"
+            android:textColor="#494343" />
+        
     </RelativeLayout>
 
     <!-- The navigation drawer -->

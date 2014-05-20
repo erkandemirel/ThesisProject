@@ -27,6 +27,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.CompoundButton;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -67,6 +68,8 @@ public class TravellingModeFragment extends SherlockMapFragment {
 
 	private ListView travellingModeListview = null;
 
+	public static TextView distanceDurationView;
+
 	private View travellingModeRootView;
 
 	private ToggleButton trafficAccidentButton;
@@ -74,6 +77,8 @@ public class TravellingModeFragment extends SherlockMapFragment {
 	private String[] travellingModeNames;
 
 	private int[] travellingModeIcons;
+
+	public static int checkedView = 0;
 
 	public static Activity travellingModeActivity;
 
@@ -131,6 +136,14 @@ public class TravellingModeFragment extends SherlockMapFragment {
 
 		case R.id.travelling_hybrid_map:
 			travellingModeGoogleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+			break;
+
+		case R.id.shw_traffic:
+			if (travellingModeGoogleMap.isTrafficEnabled()) {
+				travellingModeGoogleMap.setTrafficEnabled(false);
+			} else {
+				travellingModeGoogleMap.setTrafficEnabled(true);
+			}
 			break;
 
 		case R.id.travelling_clear_locations:
@@ -194,13 +207,25 @@ public class TravellingModeFragment extends SherlockMapFragment {
 
 		trafficAccidentButton = (ToggleButton) travellingModeRootView
 				.findViewById(R.id.traffic_button);
+		trafficAccidentButton.getBackground().setAlpha(128);
 
 		if (travellingModeGoogleMap != null) {
 			travellingModeGoogleMap.getUiSettings().setCompassEnabled(true);
 			travellingModeGoogleMap.setMyLocationEnabled(true);
 		}
 
+		CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(gps
+				.getLatitude(), gps.getLongitude()));
+		CameraUpdate zoom = CameraUpdateFactory.zoomTo(12);
+
+		travellingModeGoogleMap.moveCamera(center);
+		travellingModeGoogleMap.animateCamera(zoom);
+
 		travellingModeMarkerLocations = new ArrayList<LatLng>();
+
+		distanceDurationView = (TextView) travellingModeRootView
+				.findViewById(R.id.tm_dist_dur_view);
+		distanceDurationView.setVisibility(View.INVISIBLE);
 
 		travellingModeActivity = getActivity();
 
@@ -256,6 +281,7 @@ public class TravellingModeFragment extends SherlockMapFragment {
 						} else if (travellingModeMarkerLocations.size() >= 2) {
 
 							if (position == 0) {
+								checkedView = 1;
 								progressDialog = new ProgressDialog(
 										getSherlockActivity());
 
@@ -264,6 +290,7 @@ public class TravellingModeFragment extends SherlockMapFragment {
 								progressDialog.show();
 
 								travelling_mode = 1;
+
 								AutoCompleteDirectionsActivity.travelling_mode = 0;
 
 								if (travellingModeMarkerLocations.size() >= 2) {
@@ -284,7 +311,7 @@ public class TravellingModeFragment extends SherlockMapFragment {
 											.closeDrawer(travellingModeListview);
 								}
 							} else if (position == 1) {
-
+								checkedView = 1;
 								progressDialog = new ProgressDialog(
 										getSherlockActivity());
 
@@ -293,6 +320,7 @@ public class TravellingModeFragment extends SherlockMapFragment {
 								progressDialog.show();
 
 								travelling_mode = 2;
+
 								AutoCompleteDirectionsActivity.travelling_mode = 0;
 
 								if (travellingModeMarkerLocations.size() >= 2) {
@@ -313,7 +341,7 @@ public class TravellingModeFragment extends SherlockMapFragment {
 								}
 
 							} else if (position == 2) {
-
+								checkedView = 1;
 								progressDialog = new ProgressDialog(
 										getSherlockActivity());
 
@@ -322,6 +350,7 @@ public class TravellingModeFragment extends SherlockMapFragment {
 								progressDialog.show();
 
 								travelling_mode = 3;
+
 								AutoCompleteDirectionsActivity.travelling_mode = 0;
 
 								if (travellingModeMarkerLocations.size() >= 2) {
@@ -574,41 +603,11 @@ public class TravellingModeFragment extends SherlockMapFragment {
 		return area;
 	}
 
-	public void changeMapType() {
-
-		if (GoogleMap.MAP_TYPE_NORMAL == travellingModeGoogleMap.getMapType()) {
-
-			for (int i = 0; i < 3; i++) {
-				switch (i) {
-				case 0:
-					travellingModeGoogleMap
-							.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-					break;
-				case 1:
-					travellingModeGoogleMap
-							.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-					break;
-				case 2:
-					travellingModeGoogleMap
-							.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-					break;
-				case 3:
-
-					travellingModeGoogleMap
-							.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-
-				default:
-					break;
-				}
-
-			}
-		}
-	}
-
 	public static void clearMarkers() {
 
 		travellingModeGoogleMap.clear();
 		travellingModeMarkerLocations.clear();
+		distanceDurationView.setVisibility(View.INVISIBLE);
 
 	}
 

@@ -6,6 +6,7 @@ import java.util.Random;
 
 import places.Place;
 import places.PlacesDownloadTask;
+import tools.GPSTracker;
 import tools.NearbyPlacesSlidingMenuAdapter;
 
 import com.actionbarsherlock.view.Menu;
@@ -13,6 +14,8 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.example.navigation.R;
 import com.example.navigation.TabActivity;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
@@ -42,6 +45,7 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import autocompletetext.AutoCompletePlaceDownloadTask;
@@ -54,11 +58,15 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 	private SupportMapFragment nearbyPlacesfragment;
 
 	public static ArrayList<Marker> nearbyPlacesMarkerList;
+	
+	public static TextView distanceDurationView;
 
 	public static final int PLACES = 0;
 
 	public static final int PLACES_DETAILS = 1;
-
+	
+	public static int checkedView = 0;
+	
 	Place[] nearbyPlaces;
 	private String[] nearbyPlaceNames;
 	private int[] nearbyPlaceIcons;
@@ -79,8 +87,10 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 	private ActionBarDrawerToggle nearbyPlacesDrawerToggle = null;
 
 	private View nearbyPlacesRootView;
-	
+
 	public static String placeType;
+
+	GPSTracker gps = new GPSTracker(TabActivity.mainContext);
 
 	Handler handler = new Handler();
 	Random random = new Random();
@@ -123,6 +133,15 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 
 		case R.id.places_terrain_map:
 			nearbyPlacesGoogleMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+			break;
+
+		case R.id.show_traffic:
+			if (nearbyPlacesGoogleMap.isTrafficEnabled()) {
+				nearbyPlacesGoogleMap.setTrafficEnabled(false);
+			} else {
+				nearbyPlacesGoogleMap.setTrafficEnabled(true);
+			}
+
 			break;
 
 		case R.id.places_hybrid_map:
@@ -181,7 +200,18 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 			nearbyPlacesGoogleMap.setMyLocationEnabled(true);
 		}
 
+		CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(gps
+				.getLatitude(), gps.getLongitude()));
+		CameraUpdate zoom = CameraUpdateFactory.zoomTo(12);
+
+		nearbyPlacesGoogleMap.moveCamera(center);
+		nearbyPlacesGoogleMap.animateCamera(zoom);
+
 		nearbyPlacesMarkerList = new ArrayList<Marker>();
+		
+		distanceDurationView = (TextView) nearbyPlacesRootView
+				.findViewById(R.id.np_dist_dur_view);
+		distanceDurationView.setVisibility(View.INVISIBLE);
 
 		nearPlacesReference = new HashMap<String, Place>();
 
@@ -226,27 +256,27 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 					int position, long arg3) {
 
 				if (position == 0) {
-					placeType="airport";
+					placeType = "airport";
 					getNearbyPlaces(placeType);
 					nearbyPlacesDrawerLayout.closeDrawer(nearbyPlaceslistview);
 				} else if (position == 1) {
-					placeType="bank";
+					placeType = "bank";
 					getNearbyPlaces(placeType);
 					nearbyPlacesDrawerLayout.closeDrawer(nearbyPlaceslistview);
 				} else if (position == 2) {
-					placeType="bus_station";
+					placeType = "bus_station";
 					getNearbyPlaces(placeType);
 					nearbyPlacesDrawerLayout.closeDrawer(nearbyPlaceslistview);
 				} else if (position == 3) {
-					placeType="hospital";
+					placeType = "hospital";
 					getNearbyPlaces(placeType);
 					nearbyPlacesDrawerLayout.closeDrawer(nearbyPlaceslistview);
 				} else if (position == 4) {
-					placeType="mosque";
+					placeType = "mosque";
 					getNearbyPlaces(placeType);
 					nearbyPlacesDrawerLayout.closeDrawer(nearbyPlaceslistview);
 				} else if (position == 5) {
-					placeType="restaurant";
+					placeType = "restaurant";
 					getNearbyPlaces(placeType);
 					nearbyPlacesDrawerLayout.closeDrawer(nearbyPlaceslistview);
 				}
@@ -377,6 +407,7 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 	public static void clearMarkers() {
 		nearbyPlacesGoogleMap.clear();
 		nearbyPlacesMarkerList.clear();
+		distanceDurationView.setVisibility(View.INVISIBLE);
 	}
 
 	public static Marker addMarker(LatLng latLng) {
@@ -396,6 +427,8 @@ public class FindNearbyPlacesFragment extends SherlockMapFragment {
 	private void getNearbyPlaces(String type) {
 
 		nearbyPlacesGoogleMap.clear();
+		
+		checkedView=1;
 
 		if (nearbyPlaceslatLng == null) {
 			Toast.makeText(getSherlockActivity(), "No points on the map!",
